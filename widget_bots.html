@@ -1,0 +1,274 @@
+<!-- ===== AGROBOTS WIDGET FLOTANTE ===== -->
+<style id="agrobots-styles">
+/* ---- Contenedor raíz ---- */
+#agrobots-widget{position:fixed;bottom:24px;right:24px;z-index:9000;display:flex;flex-direction:column;align-items:flex-end;gap:10px;font-family:'Space Grotesk','Rajdhani',sans-serif;}
+
+/* ---- Botones trigger ---- */
+#agrobots-triggers{display:flex;gap:10px;}
+.agrobot-btn{width:56px;height:56px;border-radius:50%;border:2px solid var(--g400);background:var(--g950);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;box-shadow:0 4px 20px rgba(10,31,20,.8);transition:transform .2s,box-shadow .2s;overflow:hidden;}
+.agrobot-btn:hover{transform:scale(1.09);box-shadow:0 6px 28px rgba(74,155,106,.5);}
+.agrobot-btn.active-bot{border-color:var(--g400);box-shadow:0 0 0 3px rgba(74,155,106,.3),0 6px 28px rgba(74,155,106,.45);}
+
+/* ---- Panel ---- */
+#agrobots-panel{width:310px;background:linear-gradient(160deg,#0f2a1c 0%,var(--g950) 100%);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.65);display:none;flex-direction:column;transform-origin:bottom right;}
+#agrobots-panel.open{display:flex;animation:botPanelIn .22s ease-out;}
+@keyframes botPanelIn{from{opacity:0;transform:scale(.94) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}
+
+/* ---- Header del panel ---- */
+#bot-ph{background:var(--g800);padding:11px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);}
+#bot-ph-name{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:.07em;color:var(--g100);flex:1;}
+#bot-ph-badge{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:20px;background:rgba(74,155,106,.12);border:1px solid var(--g400);color:var(--g400);}
+/* Botón app — cambiar display:none a display:block para activar en demo */
+#btn-abrir-app{display:none;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:20px;background:var(--brick);color:#fff;border:none;cursor:pointer;text-decoration:none;white-space:nowrap;}
+#btn-cerrar-panel{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0;}
+#btn-cerrar-panel:hover{background:rgba(255,255,255,.08);}
+
+/* ---- Avatar area ---- */
+#bot-avatar-area{display:flex;justify-content:center;padding:14px 0 6px;position:relative;}
+.bot-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle,rgba(74,155,106,.12) 0%,transparent 70%);transition:opacity .4s;opacity:.5;}
+.bot-glow.speaking{opacity:1;animation:botGlowPulse 1.2s ease-in-out infinite;}
+@keyframes botGlowPulse{0%,100%{opacity:.7;}50%{opacity:1;}}
+
+/* ---- Burbuja ---- */
+#bot-bubble{margin:0 14px 10px;padding:11px 13px;background:rgba(74,155,106,.07);border:1px solid rgba(74,155,106,.22);border-radius:12px;min-height:52px;}
+#bot-bubble-text{font-size:12.5px;line-height:1.55;color:var(--g100);margin:0;}
+#bot-bubble-footer{display:flex;align-items:center;gap:6px;margin:6px 0 0;}
+.bot-status-dot{width:6px;height:6px;border-radius:50%;background:var(--g400);flex-shrink:0;transition:background .2s;}
+.bot-status-dot.talking{background:#FFC933;animation:botDotPing .8s ease-in-out infinite;}
+@keyframes botDotPing{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.5);opacity:.5;}}
+#bot-status-lbl{font-size:10px;color:var(--text3);font-family:monospace;}
+
+/* ---- Input ---- */
+#bot-input-row{display:flex;gap:8px;padding:0 14px 14px;}
+#bot-input{flex:1;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--g100);outline:none;font-family:inherit;transition:border-color .15s;}
+#bot-input::placeholder{color:var(--text3);}
+#bot-input:focus{border-color:var(--g400);}
+#bot-send{width:36px;height:36px;border-radius:10px;background:var(--g600);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;}
+#bot-send:hover{background:var(--g400);}
+
+/* ---- Animaciones SARA ---- */
+@keyframes swFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+@keyframes swRadarL{0%,100%{opacity:.35;transform:scale(.96) translateX(0);}50%{opacity:1;transform:scale(1.04) translateX(-2px);}}
+@keyframes swRadarR{0%,100%{opacity:.3;transform:scaleX(.9);}50%{opacity:1;transform:scaleX(1.1);}}
+@keyframes swSparkle{0%,100%{opacity:.2;transform:scale(.85);}50%{opacity:1;transform:scale(1.2);}}
+
+#sw-svg .sw-float{animation:swFloat 4.5s ease-in-out infinite;}
+#sw-svg .sw-radar-l{transform-origin:right center;animation:swRadarL 2s ease-in-out infinite;}
+#sw-svg .sw-radar-r{transform-origin:left center;animation:swRadarR 1.6s ease-in-out infinite;}
+#sw-svg .sw-sparkle{animation:swSparkle 2.5s ease-in-out infinite;}
+</style>
+
+<!-- ===== HTML DEL WIDGET ===== -->
+<div id="agrobots-widget" aria-label="Asistentes IA de AgroVision">
+
+  <div id="agrobots-triggers">
+    <button class="agrobot-btn" id="btn-trigger-sara" title="SARA – Asesora de Cultivos">
+      <svg viewBox="62 82 116 88" width="38" height="38" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="120" cy="116" fill="#CA9766" rx="57" ry="46"/>
+        <ellipse cx="120" cy="116" fill="#1C1411" rx="44" ry="25"/>
+        <ellipse cx="103" cy="113" fill="#FFC933" rx="9" ry="9"/>
+        <ellipse cx="137" cy="113" fill="#FFC933" rx="9" ry="9"/>
+        <path d="M105 122 C105 135,135 135,135 122" fill="none" stroke="#FFC933" stroke-width="5" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="agrobots-panel">
+    <div id="bot-ph">
+      <span id="bot-ph-name">SARA IA</span>
+      <span id="bot-ph-badge">Cultivos</span>
+      <!-- Para la demo: cambiar display:none → display:block en #btn-abrir-app en el CSS -->
+      <a href="http://127.0.0.1:8000" target="_blank" id="btn-abrir-app">Abrir App ↗</a>
+      <button id="btn-cerrar-panel" aria-label="Cerrar">✕</button>
+    </div>
+
+    <div id="bot-avatar-area">
+      <div class="bot-glow" id="bot-glow"></div>
+
+      <!-- SARA (oculta por defecto) -->
+      <svg id="sw-svg" viewBox="0 0 240 240" width="150" height="150" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:none">
+        <defs>
+          <linearGradient id="swBG" x1="0%" x2="0%" y1="0%" y2="100%">
+            <stop offset="0%" stop-color="#CA9766"/><stop offset="100%" stop-color="#A56E3F"/>
+          </linearGradient>
+          <filter id="swGlow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <g class="sw-float">
+          <g class="sw-sparkle">
+            <polygon fill="#7FD1FF" points="40,42 42,46 46,47 42,49 40,53 39,49 34,47 39,46"/>
+            <polygon fill="#7FD1FF" points="198,39 200,42 204,43 200,45 198,49 196,45 192,43 196,42"/>
+          </g>
+          <g class="sw-radar-l">
+            <path d="M49 94 A20 20 0 0 0 49 126" fill="none" stroke="#F6C344" stroke-width="4.5" stroke-linecap="round"/>
+            <path d="M40 88 A29 29 0 0 0 40 132" fill="none" stroke="#F6C344" stroke-width="4.5" stroke-linecap="round"/>
+          </g>
+          <g class="sw-radar-r">
+            <line stroke="#F6E7D2" stroke-width="3.5" stroke-linecap="round" x1="178" x2="209" y1="91" y2="76"/>
+            <line stroke="#F6E7D2" stroke-width="3.5" stroke-linecap="round" x1="181" x2="214" y1="108" y2="108"/>
+            <line stroke="#F6E7D2" stroke-width="3.5" stroke-linecap="round" x1="178" x2="209" y1="125" y2="140"/>
+          </g>
+          <rect fill="#9C673B" height="42" rx="1" width="22" x="109" y="160"/>
+          <ellipse cx="120" cy="208" fill="#4D7F36" rx="38" ry="11"/>
+          <ellipse cx="120" cy="208" fill="#5F973F" rx="31" ry="8"/>
+          <line stroke="#68AB3E" stroke-width="3.5" stroke-linecap="round" x1="92" x2="92" y1="205" y2="188"/>
+          <line stroke="#68AB3E" stroke-width="4" stroke-linecap="round" x1="106" x2="106" y1="204" y2="182"/>
+          <line stroke="#68AB3E" stroke-width="3.5" stroke-linecap="round" x1="106" x2="110" y1="182" y2="176"/>
+          <line stroke="#68AB3E" stroke-width="4" stroke-linecap="round" x1="133" x2="133" y1="204" y2="182"/>
+          <line stroke="#68AB3E" stroke-width="3.5" stroke-linecap="round" x1="133" x2="129" y1="182" y2="176"/>
+          <line stroke="#68AB3E" stroke-width="3.5" stroke-linecap="round" x1="148" x2="148" y1="205" y2="188"/>
+          <rect fill="#E8DEC8" height="12" width="6" x="117" y="65"/>
+          <polygon fill="#BF8955" points="87,36 153,36 142,65 98,65"/>
+          <rect fill="#EFE5CE" height="10" rx="5" width="48" x="96" y="22"/>
+          <ellipse cx="120" cy="116" fill="url(#swBG)" rx="57" ry="46"/>
+          <ellipse cx="120" cy="116" fill="#1C1411" rx="44" ry="25"/>
+          <g filter="url(#swGlow)">
+            <ellipse cx="103" cy="113" fill="#FFC933" id="sw-eye-l" rx="9" ry="9"/>
+            <ellipse cx="137" cy="113" fill="#FFC933" id="sw-eye-r" rx="9" ry="9"/>
+          </g>
+          <path d="M105 122 C105 135,135 135,135 122" fill="none" id="sw-mouth" stroke="#FFC933" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+        </g>
+      </svg>
+    </div>
+
+    <div id="bot-bubble">
+      <p id="bot-bubble-text">¿En qué puedo ayudarte hoy?</p>
+      <div id="bot-bubble-footer">
+        <span class="bot-status-dot" id="bot-sdot"></span>
+        <span id="bot-status-lbl">Listo</span>
+      </div>
+    </div>
+
+    <div id="bot-input-row">
+      <input type="text" id="bot-input" placeholder="Preguntale algo..." autocomplete="off"/>
+      <button id="bot-send" aria-label="Enviar">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== JS DEL WIDGET ===== -->
+<script>
+(function(){
+  // ─── BASE DE CONOCIMIENTO ──────────────────────────────────────────────────
+  // Agregá más objetos {keys:[...], answer:'...'} según las preguntas y respuestas que uses
+  const QA = {
+    sara:[
+      {keys:['humedad','suelo','riego','lote','agua','regar','irrigar','goteo','lámina','lamina','maíz','maiz','cultivo','seco','seca','estrés','estres'],
+       answer:'La humedad útil en los primeros 40 cm está en 42%, ingresando a umbral de estrés moderado. Te sugiero iniciar el riego por goteo mañana temprano con una lámina de 18 mm.'},
+      {keys:['hola','buenas','buenas tardes','buenas noches','holi','hey','ey','buen día','buen dia'],
+       answer:'Hola! Soy SARA, tu asesora de cultivos y suelo. Preguntame sobre humedad, riego o estado de los lotes.'},
+      {keys:['temperatura','temp','clima','pronóstico','pronostico','calor','frío','frio'],
+       answer:'La temperatura máxima prevista para mañana es de 31°C con humedad relativa del 58%. Condiciones aptas para el riego temprano.'},
+    ]
+  };
+
+  const FALLBACK = {
+    sara:'Para esa consulta necesito los datos del sensor. ¿De qué cultivo y sector me hablás?'
+  };
+
+  function matchQA(bot, text){
+    const n = t => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    const q = n(text);
+    for(const p of QA[bot]){ if(p.keys.some(k=>q.includes(n(k)))) return p.answer; }
+    return FALLBACK[bot];
+  }
+
+  // ─── REFS ──────────────────────────────────────────────────────────────────
+  const panel    = document.getElementById('agrobots-panel');
+  const btnS     = document.getElementById('btn-trigger-sara');
+  const btnX     = document.getElementById('btn-cerrar-panel');
+  const phName   = document.getElementById('bot-ph-name');
+  const phBadge  = document.getElementById('bot-ph-badge');
+  const bubble   = document.getElementById('bot-bubble-text');
+  const sdot     = document.getElementById('bot-sdot');
+  const slbl     = document.getElementById('bot-status-lbl');
+  const input    = document.getElementById('bot-input');
+  const sendBtn  = document.getElementById('bot-send');
+  const glow     = document.getElementById('bot-glow');
+  const swSvg    = document.getElementById('sw-svg');
+  const swMouth  = document.getElementById('sw-mouth');
+  const swEL     = document.getElementById('sw-eye-l');
+  const swER     = document.getElementById('sw-eye-r');
+
+  // ─── STATE ─────────────────────────────────────────────────────────────────
+  let bot='sara', talking=false, mouthIv=null, voice=null;
+
+  // ─── VOCES ─────────────────────────────────────────────────────────────────
+  function loadVoice(){
+    if(!window.speechSynthesis) return;
+    const vv = speechSynthesis.getVoices();
+    voice = vv.find(v=>v.lang.startsWith('es-AR'))||vv.find(v=>v.lang.startsWith('es-MX'))||vv.find(v=>v.lang.startsWith('es'))||vv[0];
+  }
+  if(window.speechSynthesis){ speechSynthesis.onvoiceschanged=loadVoice; loadVoice(); }
+
+  // ─── LIPSYNC DATA ──────────────────────────────────────────────────────────
+  const swShapes=[
+    'M105 122 C105 135,135 135,135 122',
+    'M108 120 C108 138,132 138,132 120',
+    'M103 124 C112 130,128 130,137 124',
+    'M112 121 C112 131,128 131,128 121',
+    'M106 122 C110 134,130 134,134 122'
+  ];
+
+  // ─── SARA BLINK ────────────────────────────────────────────────────────────
+  setInterval(()=>{
+    if(talking||bot!=='sara') return;
+    swEL.setAttribute('ry','1.5'); swER.setAttribute('ry','1.5');
+    setTimeout(()=>{swEL.setAttribute('ry','9');swER.setAttribute('ry','9');},150);
+  },3800);
+
+  // ─── SWITCH BOT ────────────────────────────────────────────────────────────
+  function switchBot(){
+    if(talking) stopTalk();
+    bot='sara';
+    swSvg.style.display='';
+    phName.textContent='SARA IA';
+    phBadge.textContent='Cultivos';
+    input.placeholder='Preguntale sobre los lotes...';
+    bubble.textContent='¿Querés saber sobre humedad, riego o tus lotes?';
+    btnS.classList.add('active-bot');
+  }
+
+  // ─── PANEL ─────────────────────────────────────────────────────────────────
+  function openPanel(){ panel.classList.add('open'); switchBot(); input.focus(); }
+  function closePanel(){ if(talking) stopTalk(); panel.classList.remove('open'); btnS.classList.remove('active-bot'); }
+
+  btnS.addEventListener('click',()=>{ panel.classList.contains('open')?closePanel():openPanel(); });
+  btnX.addEventListener('click',closePanel);
+
+  // ─── TALKING STATE ─────────────────────────────────────────────────────────
+  function startTalk(){
+    talking=true; glow.classList.add('speaking');
+    sdot.classList.add('talking'); slbl.textContent='Respondiendo...';
+    let s=0; mouthIv=setInterval(()=>{ s=(s+1)%swShapes.length; swMouth.setAttribute('d',swShapes[s]); const ry=(8.5+Math.random()*2).toFixed(1); swEL.setAttribute('ry',ry); swER.setAttribute('ry',ry); },110);
+  }
+
+  function stopTalk(){
+    talking=false; clearInterval(mouthIv); glow.classList.remove('speaking');
+    sdot.classList.remove('talking'); slbl.textContent='Listo';
+    swMouth.setAttribute('d','M105 122 C105 135,135 135,135 122');
+    swEL.setAttribute('ry','9'); swER.setAttribute('ry','9');
+  }
+
+  // ─── SPEAK ─────────────────────────────────────────────────────────────────
+  function speak(text){
+    if(talking){ stopTalk(); speechSynthesis?.cancel(); return; }
+    bubble.textContent=text; startTalk();
+    if(!window.speechSynthesis){ setTimeout(stopTalk,4500); return; }
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='es-ES'; u.rate=1.02; u.pitch=1.15;
+    if(voice) u.voice=voice;
+    u.onend=stopTalk; u.onerror=stopTalk;
+    speechSynthesis.speak(u);
+  }
+
+  // ─── SEND ──────────────────────────────────────────────────────────────────
+  function handleSend(){ const q=input.value.trim(); if(!q) return; input.value=''; speak(matchQA(bot,q)); }
+  sendBtn.addEventListener('click',handleSend);
+  input.addEventListener('keydown',e=>{ if(e.key==='Enter') handleSend(); });
+})();
+</script>

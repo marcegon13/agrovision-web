@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>document.documentElement.classList.add("hero-anim")</script>
+  <title>AgroVision IA — Inteligencia Artificial para el Campo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ── TOKENS ─────────────────────────────────────── */
+    :root {
+      --black:   #000000;
+      --navy:    #0a1628;
+      --navy-2:  #0d1f3c;
+      --blue:    #1e6fff;
+      --blue-lt: #4d9fff;
+      --blue-bg: #eff6ff;
+      --blue-bg2:#e8f0fe;
+      --white:   #ffffff;
+      --gray-50: #f9fafb;
+      --gray-100:#f3f4f6;
+      --gray-600:#4b5563;
+      --gray-700:#374151;
+      --gray-800:#1f2937;
+      --terra:   #e05a2b;
+      --logo-stroke: #ffffff;
+    }
+
+    /* ── RESET ──────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html  { scroll-behavior: smooth; }
+    body  { font-family: 'Inter', system-ui, sans-serif; background: var(--white); color: var(--gray-800); -webkit-font-smoothing: antialiased; }
+    img   { max-width: 100%; display: block; }
+    a     { text-decoration: none; }
+
+    /* ── TYPOGRAPHY ─────────────────────────────────── */
+    .section-label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.78rem; font-weight: 600; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--blue); margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(1.7rem, 4vw, 2.4rem);
+      font-weight: 700; line-height: 1.2;
+      color: var(--gray-800); text-wrap: balance;
+    }
+    .section-subtitle {
+      margin-top: 14px; max-width: 560px;
+      font-size: 1rem; line-height: 1.65; color: var(--gray-600);
+    }
+
+    /* ── GRAIN TEXTURE ──────────────────────────────── */
+    .grain {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 2; opacity: 0.07;
+    }
+
+    /* ── NAV ────────────────────────────────────────── */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      transition: background .3s;
+    }
+    .nav.scrolled { background: rgba(0,0,0,0.92); }
+    .nav-inner {
+      max-width: 1100px; margin: 0 auto;
+      height: 60px; padding: 0 20px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-brand {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.1rem; font-weight: 700; letter-spacing: .06em;
+      color: var(--white); display: flex; align-items: center; gap: 10px;
+      cursor: pointer;
+    }
+    .nav-brand .ia  { color: var(--terra); }
+    .nav-brand svg  { width: 32px; height: 28px; overflow: visible; }
+    .nav-brand svg polygon {
+      fill: none; stroke: rgba(255,255,255,0.85);
+      /* viewBox=280, display=32px → escala=0.114 → stroke-width 18 = ~2px visual */
+      stroke-width: 18; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .btn-panel {
+      background: var(--white); color: var(--navy);
+      font-size: 0.85rem; font-weight: 600;
+      padding: 8px 20px; border-radius: 999px;
+      transition: background .2s, color .2s;
+    }
+    .btn-panel:hover { background: var(--blue-lt); color: var(--white); }
+
+    /* ── HERO ───────────────────────────────────────── */
+    #hero {
+      position: relative;
+      min-height: 100vh; min-height: 100dvh;
+      background: var(--black);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 100px 24px 60px;
+      overflow: hidden;
+    }
+    #hero .hero-content { position: relative; z-index: 3; width: 100%; }
+
+    /* ── HERO LOGO (canvas: palitos que vuelan + estela) ── */
+    .logo-slot {
+      width: min(390px, 72vw);
+      aspect-ratio: 390 / 335;
+      margin: 0 auto 36px;
+      cursor: pointer;
+    }
+    #hero-fx {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      z-index: 4; pointer-events: none;
+    }
+
+    /* ── HERO TITLE ─────────────────────────────────── */
+    .hero-brand {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: clamp(2.2rem, 6vw, 3.4rem);
+      font-weight: 700; letter-spacing: 0.04em;
+      color: var(--white); line-height: 1;
+      margin-bottom: 8px;
+    }
+    .hero-brand .ia { color: var(--terra); }
+
+    .hero-sub {
+      margin-top: 12px;
+      font-size: clamp(0.75rem, 2vw, 0.9rem);
+      font-weight: 500; letter-spacing: .18em; text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+    }
+    .btn-scroll {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 40px; padding: 14px 32px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.3);
+      color: var(--white); font-size: 0.9rem; font-weight: 500;
+      letter-spacing: .06em;
+      transition: border-color .2s, background .2s;
+    }
+    /* El texto real aparece (fade) cuando las partículas terminan de formarlo */
+    .hero-anim .hero-brand,
+    .hero-anim .hero-sub,
+    .hero-anim .btn-scroll { opacity: 0; transition: opacity .9s ease; }
+    .hero-anim #hero.formed .hero-brand,
+    .hero-anim #hero.formed .hero-sub { opacity: 1; }
+    .hero-anim #hero.formed .btn-scroll { opacity: 1; transition: opacity .7s ease .5s, border-color .2s, background .2s; }
+    .btn-scroll:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.5); }
+    .btn-scroll svg { width: 16px; height: 16px; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: none; }
+    }
+    /* ── SECTION WRAPPER ────────────────────────────── */
+    .section { max-width: 1100px; margin: 0 auto; padding: 80px 24px; }
+
+    /* ── EL SISTEMA ─────────────────────────────────── */
+    #sistema { background: var(--white); }
+    .sistema-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 48px; align-items: start; margin-top: 40px;
+    }
+    .mockup-card {
+      background: var(--gray-50); border-radius: 20px;
+      overflow: hidden; border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: 0 4px 32px rgba(0,0,0,0.06);
+    }
+    .mockup-header {
+      background: var(--white); padding: 14px 18px;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .mockup-header .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .mockup-header .dot-r { background: #ff5f57; }
+    .mockup-header .dot-y { background: #ffbd2e; }
+    .mockup-header .dot-g { background: #28c840; }
+    .mockup-logo {
+      margin: 0 auto 4px;
+      display: flex; align-items: center; gap: 8px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.95rem; font-weight: 700; letter-spacing: .08em;
+    }
+    .mockup-logo .ia-small { color: var(--terra); }
+    .mockup-logo svg { width: 28px; height: 24px; overflow: visible; }
+    .mockup-logo polygon {
+      fill: none; stroke: var(--navy); stroke-width: 2.2;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    .mockup-card img {
+      width: 100%; height: 260px;
+      object-fit: cover; object-position: center; display: block;
+    }
+    .mockup-icons {
+      padding: 12px 18px;
+      display: flex; gap: 14px; justify-content: center; opacity: .5;
+    }
+    .mockup-icons svg { width: 20px; height: 20px; }
+    .features-right { display: flex; flex-direction: column; gap: 16px; }
+    .feature-card {
+      background: var(--white); border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.07);
+      border-left: 3px solid var(--blue);
+      padding: 18px 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      transition: box-shadow .2s;
+    }
+    .feature-card:hover { box-shadow: 0 4px 20px rgba(30,111,255,0.12); }
+    .feature-card h3 { font-size: 1rem; font-weight: 600; color: var(--gray-800); margin-bottom: 6px; }
+    .feature-card p  { font-size: 0.9rem; line-height: 1.55; color: var(--gray-600); }
+
+    /* ── CARDS ROW ──────────────────────────────────── */
+    .cards-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .card-item {
+      background: var(--white); border-radius: 16px;
+      padding: 28px 24px;
+      border: 1px solid rgba(30,111,255,0.1);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .card-item:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(30,111,255,0.12); }
+    .card-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: var(--blue-bg2);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px;
+    }
+    .card-icon svg { width: 22px; height: 22px; stroke: var(--blue); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .card-item h3 { font-size: 1.05rem; font-weight: 700; color: var(--gray-800); margin-bottom: 8px; }
+    .card-item p  { font-size: 0.88rem; line-height: 1.6; color: var(--gray-600); }
+
+    /* ── ATICMA SECTION ─────────────────────────────── */
+    #aticma { background: var(--navy); }
+    .aticma-inner {
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; gap: 28px; padding: 72px 24px;
+      max-width: 760px; margin: 0 auto;
+    }
+    .aticma-eyebrow {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: rgba(255,255,255,0.35);
+    }
+    .aticma-logo-wrap {
+      display: flex; align-items: center; justify-content: center;
+    }
+    .aticma-logo-wrap img {
+      max-height: 160px; max-width: 480px; width: 100%;
+      object-fit: contain;
+      border-radius: 16px;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.55);
+    }
+    .aticma-badge {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 10px 28px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem; font-weight: 700; letter-spacing: .06em;
+      color: rgba(255,255,255,0.85);
+    }
+    .aticma-badge .aticma-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #22c55e;
+      animation: sdotPulse 2s infinite;
+    }
+    .aticma-desc {
+      font-size: 0.92rem; color: rgba(255,255,255,0.45); line-height: 1.65;
+      max-width: 480px;
+    }
+
+    /* ── SARA ───────────────────────────────────────── */
+    #asistentes { background: var(--white); }
+
+    .sara-showcase {
+      margin-top: 40px;
+      display: flex; gap: 48px; align-items: center;
+      background: var(--white);
+      border-radius: 28px;
+      border: 1px solid rgba(0,0,0,0.07);
+      overflow: hidden;
+      box-shadow: 0 4px 40px rgba(30,111,255,0.08);
+    }
+    .sara-img-side {
+      background: var(--white);
+      flex: 0 0 300px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 24px 16px;
+      cursor: pointer;
+    }
+    /* Sara bot SVG — el bot tiene su propia animación de float */
+    .sara-svg {
+      filter: drop-shadow(0 14px 28px rgba(0,0,0,0.18));
+      width: 220px; height: 220px;
+      transition: transform 0.3s ease;
+    }
+    .sara-img-side:hover .sara-svg { transform: scale(1.04); }
+    .sara-img-side:active .sara-svg { transform: scale(0.96); }
+
+    /* Sara speak hint */
+    .sara-speak-hint {
+      margin-top: 8px;
+      display: flex; align-items: center; gap: 7px;
+      padding: 5px 14px; border-radius: 999px;
+      background: rgba(16,85,55,0.08);
+      border: 1px solid rgba(16,120,70,0.2);
+      color: #1a7a45; font-size: 0.72rem; font-weight: 600;
+      letter-spacing: .04em; transition: all .3s;
+    }
+    .sara-speak-hint .sdot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #22c55e;
+      animation: sdotPulse 2s infinite;
+    }
+    @keyframes sdotPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: .5; transform: scale(0.8); }
+    }
+    .sara-speak-hint.speaking { background: rgba(240,180,20,0.08); border-color: rgba(240,180,20,0.3); color: #b45309; }
+    .sara-speak-hint.speaking .sdot { background: #f59e0b; }
+
+    .sara-info-side {
+      flex: 1;
+      padding: 40px 40px 40px 0;
+    }
+    .sara-info-side h3 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.9rem; font-weight: 700; letter-spacing: .04em;
+      color: var(--gray-800); margin-bottom: 4px;
+    }
+    .sara-info-side .sara-full {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--blue); margin-bottom: 14px;
+    }
+    .sara-info-side p {
+      font-size: 0.95rem; line-height: 1.65; color: var(--gray-600);
+    }
+    .sara-tags {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px;
+    }
+    .sara-tag {
+      background: var(--blue-bg); color: var(--blue);
+      font-size: 0.75rem; font-weight: 600; letter-spacing: .06em;
+      padding: 5px 14px; border-radius: 999px;
+      text-transform: uppercase;
+    }
+
+    /* ── SARA BOT ANIMATIONS ────────────────────────── */
+    @keyframes subtleFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50%       { transform: translateY(-7px) rotate(0.4deg); }
+    }
+    @keyframes eyeBlink {
+      0%, 94%, 98%, 100% { transform: scaleY(1); }
+      96%                 { transform: scaleY(0.1); }
+    }
+    @keyframes sensorPulse {
+      0%, 100% { opacity: 0.35; transform: scale(0.97); }
+      50%       { opacity: 1;    transform: scale(1.04); }
+    }
+    @keyframes sparkleGlow {
+      0%, 100% { opacity: 0.3; transform: scale(0.85); }
+      50%       { opacity: 1;   transform: scale(1.15); }
+    }
+    @keyframes plantBreeze {
+      0%, 100% { transform: rotate(0deg); }
+      50%       { transform: rotate(2.5deg); }
+    }
+    .sara-anim-float   { animation: subtleFloat 3.8s ease-in-out infinite; }
+    .sara-anim-blink   { transform-origin: center; animation: eyeBlink 4.2s infinite; }
+    .sara-anim-radar   { animation: sensorPulse 2.2s ease-in-out infinite; }
+    .sara-anim-sparkle { animation: sparkleGlow 2s ease-in-out infinite; }
+    .sara-anim-plant   { transform-origin: bottom center; animation: plantBreeze 3s ease-in-out infinite; }
+
+    /* Chat timeline */
+    .chat-timeline {
+      margin-top: 36px;
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .chat-line { position: relative; }
+    .chat-left  { align-self: flex-start; max-width: 54%; }
+    .chat-right { align-self: flex-end;   max-width: 54%; }
+    .chat-bubble {
+      background: var(--white);
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 14px; padding: 14px 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .chat-meta {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: .06em;
+      color: var(--gray-600); margin-bottom: 6px; text-transform: uppercase;
+    }
+    .tag {
+      display: inline-block; font-size: 0.65rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 4px; margin-bottom: 6px;
+    }
+    .tag-aviso    { background: #fef3c7; color: #92400e; }
+    .tag-consulta { background: var(--blue-bg2); color: #1e40af; }
+    .chat-bubble p { font-size: 0.88rem; line-height: 1.5; color: var(--gray-700); }
+    .chat-highlight { color: var(--blue); font-weight: 600; }
+
+    /* Panel CTA */
+    .sara-panel-cta {
+      margin-top: 40px;
+      background: var(--navy-2);
+      border-radius: 20px;
+      border: 1px solid rgba(30,111,255,0.35);
+      padding: 36px 40px;
+      display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    }
+    .sara-panel-cta h3 { font-size: 1.3rem; font-weight: 700; color: var(--white); margin-bottom: 8px; }
+    .sara-panel-cta p  { font-size: 0.95rem; color: rgba(255,255,255,0.6); }
+    .btn-blue {
+      display: inline-flex; align-items: center;
+      background: var(--blue); color: var(--white);
+      font-size: 0.95rem; font-weight: 600;
+      padding: 14px 28px; border-radius: 999px;
+      box-shadow: 0 8px 24px rgba(30,111,255,0.35);
+      white-space: nowrap;
+      transition: background .2s, transform .2s;
+    }
+    .btn-blue:hover { background: #3a80ff; transform: translateY(-1px); }
+
+    /* ── CUANDO VOS DESCANSAS ───────────────────────── */
+    #descansas { background: var(--navy); }
+    #descansas .section { padding: 80px 24px; }
+    #descansas .section-label { color: rgba(255,255,255,0.4); }
+    #descansas .section-title { color: var(--white); font-size: clamp(2rem, 5vw, 3rem); }
+    #descansas .section-subtitle { color: rgba(255,255,255,0.6); }
+
+    .descansas-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+      margin-top: 40px;
+    }
+    .descansas-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px; overflow: hidden;
+      transition: border-color .2s, background .2s;
+    }
+    .descansas-card:hover { background: rgba(255,255,255,0.08); border-color: rgba(30,111,255,0.4); }
+    .descansas-card-header {
+      background: rgba(255,255,255,0.08);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 12px 16px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .dot-w { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.25); display: inline-block; }
+    .descansas-card img {
+      width: 100%; height: 200px; object-fit: cover; display: block;
+    }
+    .descansas-card-body { padding: 16px 18px 20px; }
+    .descansas-card-logo {
+      display: flex; align-items: center; gap: 6px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.75rem; font-weight: 700;
+      letter-spacing: .08em; color: rgba(255,255,255,0.6);
+      margin-bottom: 10px;
+    }
+    .descansas-card-logo .ia-s { color: var(--terra); }
+    .descansas-card-logo svg { width: 18px; height: 16px; overflow: visible; }
+    .descansas-card-logo polygon {
+      fill: none; stroke: rgba(255,255,255,0.6); stroke-width: 2.5;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    .descansas-card-body h4 { font-size: 0.85rem; font-weight: 600; color: var(--white); line-height: 1.4; }
+    .descansas-card-icons { display: flex; gap: 10px; margin-top: 12px; opacity: .35; }
+    .descansas-card-icons svg { width: 16px; height: 16px; fill: none; stroke: white; stroke-width: 1.8; }
+
+    /* ── HOJA DE RUTA ───────────────────────────────── */
+    #roadmap { background: var(--gray-50); }
+    .roadmap-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;
+      margin-top: 40px;
+    }
+    .roadmap-col h4 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.78rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--blue);
+      margin-bottom: 16px; padding-bottom: 10px;
+      border-bottom: 1px solid rgba(30,111,255,0.2);
+    }
+    .roadmap-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .roadmap-col li {
+      font-size: 0.88rem; line-height: 1.5; color: var(--gray-700);
+      padding-left: 16px; position: relative;
+    }
+    .roadmap-col li::before {
+      content: ''; position: absolute; left: 0; top: 7px;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--blue); opacity: .5;
+    }
+    .roadmap-col li.highlight { font-weight: 500; color: var(--gray-800); }
+    .roadmap-col li.highlight::before { opacity: 1; }
+
+    /* ── FOOTER ─────────────────────────────────────── */
+    footer { background: var(--navy); color: rgba(255,255,255,0.7); font-size: 0.88rem; }
+    .footer-inner {
+      max-width: 1100px; margin: 0 auto;
+      padding: 60px 24px 40px;
+      display: grid; grid-template-columns: 1fr auto;
+      gap: 40px; align-items: start;
+    }
+    .footer-brand {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.6rem; font-weight: 700; letter-spacing: .06em;
+      color: var(--white); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .footer-brand .ia  { color: var(--terra); }
+    .footer-brand svg  { width: 36px; height: 32px; overflow: visible; }
+    .footer-brand polygon {
+      fill: none; stroke: rgba(255,255,255,0.85); stroke-width: 2.5;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    .footer-desc  { max-width: 360px; line-height: 1.6; margin-bottom: 14px; }
+    .footer-right { text-align: right; }
+    .footer-right .label {
+      font-size: 0.7rem; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 8px;
+    }
+    .footer-right .company  { font-size: 1rem; font-weight: 600; color: var(--white); }
+    .footer-right .location { font-size: 0.85rem; color: rgba(255,255,255,0.45); margin-top: 4px; }
+    .footer-copy {
+      max-width: 1100px; margin: 0 auto;
+      padding: 20px 24px; border-top: 1px solid rgba(255,255,255,0.08);
+      text-align: center; font-size: 0.8rem; color: rgba(255,255,255,0.3);
+    }
+
+    /* ── SCROLL REVEAL ──────────────────────────────── */
+    .reveal {
+      opacity: 0; transform: translateY(20px);
+      transition: opacity .65s ease, transform .65s ease;
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ── RESPONSIVE ─────────────────────────────────── */
+    @media (max-width: 900px) {
+      .sistema-grid    { grid-template-columns: 1fr; }
+      .cards-grid      { grid-template-columns: 1fr 1fr; }
+      .descansas-grid  { grid-template-columns: 1fr; }
+      .roadmap-grid    { grid-template-columns: 1fr 1fr; }
+      .sara-showcase   { flex-direction: column; gap: 0; }
+      .sara-img-side   { flex: none; width: 100%; padding: 32px 24px 16px; }
+      .sara-info-side  { padding: 24px; }
+      .sara-panel-cta  { flex-direction: column; text-align: center; }
+      .footer-inner    { grid-template-columns: 1fr; }
+      .footer-right    { text-align: left; }
+    }
+    @media (max-width: 600px) {
+      .cards-grid    { grid-template-columns: 1fr; }
+      .roadmap-grid  { grid-template-columns: 1fr; }
+      .chat-left, .chat-right { max-width: 88%; }
+      .sara-svg { width: 180px; height: 180px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ──────────────────────────────────────────── -->
+<nav class="nav" id="navbar">
+  <div class="nav-inner">
+    <div class="nav-brand" id="nav-brand-logo">
+      <svg viewBox="0 0 280 235" aria-hidden="true" id="nav-logo-svg">
+        <polygon points="100,75 180,75 140,5"/>
+        <polygon points="60,150 140,150 100,80"/>
+        <polygon points="100,80 180,80 140,150"/>
+        <polygon points="140,150 220,150 180,80"/>
+        <polygon points="20,225 100,225 60,155"/>
+        <polygon points="60,155 140,155 100,225"/>
+        <polygon points="100,225 180,225 140,155"/>
+        <polygon points="140,155 220,155 180,225"/>
+        <polygon points="180,225 260,225 220,155"/>
+      </svg>
+      AGROVISION&nbsp;<span class="ia">IA</span>
+    </div>
+    <a href="/panel/" class="btn-panel">Panel</a>
+  </div>
+</nav>
+
+<!-- ── HERO ─────────────────────────────────────────── -->
+<section id="hero">
+  <canvas id="hero-fx" aria-hidden="true"></canvas>
+  <svg class="grain" aria-hidden="true">
+    <filter id="grain-f">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <rect width="100%" height="100%" filter="url(#grain-f)"/>
+  </svg>
+  <div class="hero-content">
+    <div class="logo-slot" id="hero-logo-slot" role="img" aria-label="AgroVision IA logo"></div>
+    <h1 class="hero-brand">Agrovision&nbsp;<span class="ia">IA</span></h1>
+    <p class="hero-sub">Inteligencia Artificial para el Campo</p>
+    <a href="#sistema" class="btn-scroll">
+      Conocé más
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </a>
+  </div>
+</section>
+
+<!-- ── EL SISTEMA ───────────────────────────────────── -->
+<section id="sistema">
+  <div class="section">
+    <p class="section-label reveal">El Sistema</p>
+    <h2 class="section-title reveal reveal-delay-1">Inteligencia artificial<br>para el agro del futuro.</h2>
+    <p class="section-subtitle reveal reveal-delay-2">
+      AgroVision IA detecta, identifica y monitorea hacienda y cultivos en tiempo real,
+      sin internet permanente, sin intervención manual.
+    </p>
+    <div class="sistema-grid">
+      <div class="mockup-card reveal">
+        <div class="mockup-header">
+          <span class="dot dot-r"></span>
+          <span class="dot dot-y"></span>
+          <span class="dot dot-g"></span>
+          <div class="mockup-logo" style="margin-left:auto;margin-right:auto;">
+            <svg viewBox="0 0 280 235" aria-hidden="true">
+              <polygon points="100,75 180,75 140,5"/>
+              <polygon points="60,150 140,150 100,80"/>
+              <polygon points="100,80 180,80 140,150"/>
+              <polygon points="140,150 220,150 180,80"/>
+              <polygon points="20,225 100,225 60,155"/>
+              <polygon points="60,155 140,155 100,225"/>
+              <polygon points="100,225 180,225 140,155"/>
+              <polygon points="140,155 220,155 180,225"/>
+              <polygon points="180,225 260,225 220,155"/>
+            </svg>
+            <span>AGROVISION&nbsp;<span class="ia-small">IA</span></span>
+          </div>
+        </div>
+        <img src="/img/agro1.jpeg" alt="Panel de monitoreo AgroVision" />
+        <div class="mockup-icons">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 2a7 7 0 100 14A7 7 0 0012 2z"/><path d="M12 9v3l2 2"/></svg>
+        </div>
+      </div>
+      <div class="features-right">
+        <div class="feature-card reveal reveal-delay-1">
+          <h3>Visión artificial en campo</h3>
+          <p>Una cámara de campo LoRa identifica cada animal por caravana, estima peso y condición corporal, y lo registra sin que nadie tenga que hacerlo.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-2">
+          <h3>Asistente con IA conversacional</h3>
+          <p>SARA responde en lenguaje natural: número de animales, lotes listos para sembrar, alertas de salud. Como Alexa, <span class="chat-highlight">pero para el campo.</span></p>
+        </div>
+        <div class="feature-card reveal reveal-delay-3">
+          <h3>Reportes automáticos</h3>
+          <p>Genera PDFs con categorías, pesos estimados y estado corporal. Historial completo por animal, lote y fecha, siempre disponible.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CARDS ROW ─────────────────────────────────────── -->
+<div id="cards" style="background:var(--blue-bg);">
+  <div class="section" style="padding-top:60px;padding-bottom:60px;">
+    <div class="cards-grid">
+      <div class="card-item reveal">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <h3>Detección en tiempo real</h3>
+        <p>Cuenta, clasifica y posiciona animales en el lote por caravana. Sin contacto, sin estrés, sin fallas de recuento.</p>
+      </div>
+      <div class="card-item reveal reveal-delay-2">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <h3>Alertas automáticas</h3>
+        <p>Detecta temperatura corporal anómala, animales echados demasiado tiempo, vehículos intrusos y eventos de seguridad.</p>
+      </div>
+      <div class="card-item reveal reveal-delay-4">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+        </div>
+        <h3>Información geoespacial</h3>
+        <p>Ubica malezas, mide distancias al bebedero, identifica dónde está cada animal. Datos de campo accionables al instante.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ATICMA ────────────────────────────────────────── -->
+<section id="aticma">
+  <div class="aticma-inner reveal">
+    <p class="aticma-eyebrow">Reconocimiento</p>
+    <div class="aticma-logo-wrap">
+      <img src="/img/aticma.png" alt="ATICMA Emprende 2026" />
+    </div>
+    <div class="aticma-badge">
+      <span class="aticma-dot"></span>
+      Preseleccionados en ATICMA Emprende 2026
+    </div>
+    <p class="aticma-desc">
+      AgroVision IA fue preseleccionada en el concurso de emprendimientos tecnológicos
+      más importante de la Argentina, entre cientos de proyectos de todo el país.
+    </p>
+  </div>
+</section>
+
+<!-- ── SARA ──────────────────────────────────────────── -->
+<section id="asistentes">
+  <div class="section">
+    <p class="section-label reveal">Tu Asistente</p>
+    <h2 class="section-title reveal reveal-delay-1">Un día con SARA</h2>
+    <p class="section-subtitle reveal reveal-delay-2">Le preguntás cuando necesitás saber.</p>
+
+    <!-- SARA showcase: bot SVG + info -->
+    <div class="sara-showcase reveal">
+      <!-- Bot interactivo -->
+      <div class="sara-img-side" id="saraBotContainer" title="Tocá a Sara para escucharla">
+        <svg class="sara-svg sara-anim-float" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Destellos celestes superiores -->
+          <g id="sparkles">
+            <path class="sara-anim-sparkle" d="M 52 70 L 55 64 L 58 70 L 64 73 L 58 76 L 55 82 L 52 76 L 46 73 Z" fill="#9bd2e8"/>
+            <circle class="sara-anim-sparkle" cx="72" cy="45" r="2.5" fill="#78c2e0"/>
+            <path class="sara-anim-sparkle" style="animation-delay:.9s" d="M 238 68 L 241 62 L 244 68 L 250 71 L 244 74 L 241 80 L 238 74 L 232 71 Z" fill="#9bd2e8"/>
+            <circle class="sara-anim-sparkle" style="animation-delay:.7s" cx="225" cy="42" r="2.5" fill="#78c2e0"/>
+          </g>
+          <!-- Sensores laterales -->
+          <g id="side-radars">
+            <path class="sara-anim-radar" d="M 68 120 C 58 135 58 165 68 180" stroke="#f6bd38" stroke-width="7" stroke-linecap="round" fill="none"/>
+            <path class="sara-anim-radar" style="animation-delay:.4s" d="M 50 112 C 36 133 36 167 50 188" stroke="#f6bd38" stroke-width="7" stroke-linecap="round" fill="none" opacity="0.85"/>
+            <g class="sara-anim-radar" style="animation-delay:.6s">
+              <line x1="222" y1="126" x2="260" y2="114" stroke="#edd8b4" stroke-width="6.5" stroke-linecap="round"/>
+              <line x1="225" y1="150" x2="266" y2="150" stroke="#edd8b4" stroke-width="6.5" stroke-linecap="round"/>
+              <line x1="222" y1="174" x2="260" y2="186" stroke="#edd8b4" stroke-width="6.5" stroke-linecap="round"/>
+            </g>
+          </g>
+          <!-- Sensor / gorro superior -->
+          <g id="top-sensor">
+            <rect x="144" y="80" width="12" height="15" fill="#cfab78" rx="2"/>
+            <path d="M 112 50 L 188 50 L 174 82 L 126 82 Z" fill="#b08153" stroke="#875c35" stroke-width="2"/>
+            <rect x="120" y="30" width="60" height="15" rx="7.5" fill="#edd8b4" stroke="#d5be96" stroke-width="1.5"/>
+          </g>
+          <!-- Base: suelo, soporte y plantas -->
+          <g id="base-plantas">
+            <path d="M 100 268 C 100 248 200 248 200 268 Z" fill="#588b43"/>
+            <ellipse cx="150" cy="268" rx="52" ry="7" fill="#446f33"/>
+            <rect x="135" y="200" width="30" height="52" fill="#a4774b" rx="4"/>
+            <rect x="140" y="202" width="20" height="48" fill="#bc8e5e" rx="3"/>
+            <g class="sara-anim-plant">
+              <rect x="115" y="235" width="5.5" height="26" rx="2.5" fill="#60974b"/>
+              <path d="M 115 240 Q 106 235 110 248 Z" fill="#75b25c"/>
+              <rect x="128" y="222" width="5.5" height="38" rx="2.5" fill="#60974b"/>
+              <rect x="166" y="222" width="5.5" height="38" rx="2.5" fill="#60974b"/>
+              <rect x="179" y="235" width="5.5" height="26" rx="2.5" fill="#60974b"/>
+              <path d="M 185 240 Q 194 235 190 248 Z" fill="#75b25c"/>
+            </g>
+          </g>
+          <!-- Cabeza ovalada -->
+          <g id="head-sara">
+            <ellipse cx="150" cy="150" rx="72" ry="58" fill="#c39363" stroke="#9e6e3f" stroke-width="3"/>
+            <ellipse cx="150" cy="152" rx="68" ry="54" fill="#cf9f6e"/>
+            <rect x="96" y="118" width="108" height="64" rx="32" fill="#1b120c" stroke="#3d2a1c" stroke-width="2"/>
+            <!-- Ojos -->
+            <g class="sara-anim-blink">
+              <circle cx="128" cy="148" r="11.5" fill="#fbb034"/>
+              <circle cx="126" cy="145" r="3.5" fill="#ffe699"/>
+              <circle cx="172" cy="148" r="11.5" fill="#fbb034"/>
+              <circle cx="170" cy="145" r="3.5" fill="#ffe699"/>
+            </g>
+            <!-- Boca -->
+            <g id="mouth-group">
+              <path id="saraMouth"
+                    d="M 132 161 Q 150 174 168 161"
+                    stroke="#fbb034" stroke-width="4.5"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    fill="none"
+                    style="transition: d 0.08s ease-in-out, fill 0.08s ease-in-out;"/>
+            </g>
+          </g>
+        </svg>
+        <!-- Indicador "tocá a Sara" -->
+        <div class="sara-speak-hint" id="saraHint">
+          <span class="sdot" id="statusDot"></span>
+          <span id="statusLabel">Tocá a Sara para escucharla</span>
+        </div>
+      </div>
+
+      <!-- Info lado derecho -->
+      <div class="sara-info-side">
+        <h3>SARA IA</h3>
+        <p class="sara-full">Sistema de Asistencia Rural con IA</p>
+        <p>Tu asesora de campo. Consultá sobre ganadería, lotes, cultivos, riego y alertas climáticas en lenguaje natural, desde cualquier dispositivo, en cualquier momento.</p>
+        <div class="sara-tags">
+          <span class="sara-tag">Ganadería</span>
+          <span class="sara-tag">Cultivos</span>
+          <span class="sara-tag">Alertas</span>
+          <span class="sara-tag">Reportes PDF</span>
+          <span class="sara-tag">Sin internet fijo</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat demo timeline -->
+    <div class="chat-timeline">
+      <div class="chat-line chat-left reveal">
+        <div class="chat-bubble">
+          <div class="chat-meta">05:30 · SARA</div>
+          <span class="tag tag-aviso">Aviso</span>
+          <p>Se esperan <span class="chat-highlight">–3 °C</span> mañana a la madrugada. El maíz del <span class="chat-highlight">lote 7</span> está recién nacido. Considerá protegerlo.</p>
+        </div>
+      </div>
+      <div class="chat-line chat-right reveal reveal-delay-1">
+        <div class="chat-bubble">
+          <div class="chat-meta">17:00 · SARA</div>
+          <span class="tag tag-consulta">Consulta</span>
+          <p>¿Cuánto caminan hasta el agua en el lote 6?<br>
+          <span class="chat-highlight">4,2 km por día</span>, el doble que en el lote 3, y ganan menos peso. Conviene un bebedero en la esquina sur.</p>
+        </div>
+      </div>
+      <div class="chat-line chat-left reveal">
+        <div class="chat-bubble">
+          <div class="chat-meta">19:30 · SARA</div>
+          <span class="tag tag-consulta">Consulta</span>
+          <p>¿Cuánto gasoil gastamos hoy?<br>
+          <span class="chat-highlight">6,8 litros por hectárea</span>, un 12% más que ayer. El tractor trabajó más forzado en el lote con más rastrojo.</p>
+        </div>
+      </div>
+      <div class="chat-line chat-right reveal reveal-delay-1">
+        <div class="chat-bubble">
+          <div class="chat-meta">23:40 · SARA</div>
+          <span class="tag tag-aviso">Aviso</span>
+          <p>Movimiento de un vehículo sin luces sobre el camino del <span class="chat-highlight">lote 2</span>. La hacienda está completa.</p>
+        </div>
+      </div>
+      <div class="chat-line chat-left reveal">
+        <div class="chat-bubble">
+          <div class="chat-meta">SARA · Análisis</div>
+          <span class="tag tag-consulta">Recomendación</span>
+          <p>¿A qué lote muevo la hacienda esta semana?<br>
+          Al <span class="chat-highlight">lote 5</span>: 1.900 kg de materia seca por hectárea, bebedero lleno y cerco con tensión. Alcanza para <span class="chat-highlight">9 días</span>.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA panel -->
+    <div class="sara-panel-cta reveal">
+      <div>
+        <h3>Hablá con SARA ahora</h3>
+        <p>Tu asistente de IA para el campo está lista en el panel.</p>
+      </div>
+      <a href="/panel/" class="btn-blue">Abrir Panel &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── CUANDO VOS DESCANSAS ──────────────────────────── -->
+<section id="descansas" style="background:var(--navy);">
+  <div class="section">
+    <p class="section-label reveal">24 horas</p>
+    <h2 class="section-title reveal reveal-delay-1" style="color:var(--white);font-size:clamp(2rem,5vw,3rem);">cuando vos descansas</h2>
+    <p class="section-subtitle reveal reveal-delay-2" style="color:rgba(255,255,255,0.6);">Las cámaras registran. SARA analiza. Vos decidís con información real.</p>
+    <div class="descansas-grid">
+      <div class="descansas-card reveal">
+        <div class="descansas-card-header">
+          <span class="dot-w"></span><span class="dot-w"></span><span class="dot-w"></span>
+        </div>
+        <img src="/img/agro2.jpeg" alt="Monitoreo de Movimiento y Utilización de Pasturas"/>
+        <div class="descansas-card-body">
+          <div class="descansas-card-logo">
+            <svg viewBox="0 0 280 235" aria-hidden="true">
+              <polygon points="100,75 180,75 140,5"/>
+              <polygon points="60,150 140,150 100,80"/>
+              <polygon points="100,80 180,80 140,150"/>
+              <polygon points="140,150 220,150 180,80"/>
+              <polygon points="20,225 100,225 60,155"/>
+              <polygon points="60,155 140,155 100,225"/>
+              <polygon points="100,225 180,225 140,155"/>
+              <polygon points="140,155 220,155 180,225"/>
+              <polygon points="180,225 260,225 220,155"/>
+            </svg>
+            AGROVISION&nbsp;<span class="ia-s">IA</span>
+          </div>
+          <h4>Monitoreo de Movimiento y Utilización de Pasturas</h4>
+          <div class="descansas-card-icons">
+            <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 100 14A7 7 0 0012 2z"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="descansas-card reveal reveal-delay-2">
+        <div class="descansas-card-header">
+          <span class="dot-w"></span><span class="dot-w"></span><span class="dot-w"></span>
+        </div>
+        <img src="/img/agro3.jpeg" alt="Predicción de Salud Preventiva"/>
+        <div class="descansas-card-body">
+          <div class="descansas-card-logo">
+            <svg viewBox="0 0 280 235" aria-hidden="true">
+              <polygon points="100,75 180,75 140,5"/>
+              <polygon points="60,150 140,150 100,80"/>
+              <polygon points="100,80 180,80 140,150"/>
+              <polygon points="140,150 220,150 180,80"/>
+              <polygon points="20,225 100,225 60,155"/>
+              <polygon points="60,155 140,155 100,225"/>
+              <polygon points="100,225 180,225 140,155"/>
+              <polygon points="140,155 220,155 180,225"/>
+              <polygon points="180,225 260,225 220,155"/>
+            </svg>
+            AGROVISION&nbsp;<span class="ia-s">IA</span>
+          </div>
+          <h4>Predicción de Salud Preventiva · <span style="font-weight:400;opacity:.6;">Alerta Temprana</span></h4>
+          <div class="descansas-card-icons">
+            <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 100 14A7 7 0 0012 2z"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="descansas-card reveal reveal-delay-4">
+        <div class="descansas-card-header">
+          <span class="dot-w"></span><span class="dot-w"></span><span class="dot-w"></span>
+        </div>
+        <img src="/img/agro4.jpeg" alt="Monitoreo de Cultivos Extensivos"/>
+        <div class="descansas-card-body">
+          <div class="descansas-card-logo">
+            <svg viewBox="0 0 280 235" aria-hidden="true">
+              <polygon points="100,75 180,75 140,5"/>
+              <polygon points="60,150 140,150 100,80"/>
+              <polygon points="100,80 180,80 140,150"/>
+              <polygon points="140,150 220,150 180,80"/>
+              <polygon points="20,225 100,225 60,155"/>
+              <polygon points="60,155 140,155 100,225"/>
+              <polygon points="100,225 180,225 140,155"/>
+              <polygon points="140,155 220,155 180,225"/>
+              <polygon points="180,225 260,225 220,155"/>
+            </svg>
+            AGROVISION&nbsp;<span class="ia-s">IA</span>
+          </div>
+          <h4>Monitoreo de Cultivos Extensivos y Optimización de Siembra Directa</h4>
+          <div class="descansas-card-icons">
+            <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 100 14A7 7 0 0012 2z"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOJA DE RUTA ──────────────────────────────────── -->
+<section id="roadmap">
+  <div class="section">
+    <p class="section-label reveal">Hoja de Ruta</p>
+    <h2 class="section-title reveal reveal-delay-1">Lo que viene</h2>
+    <p class="section-subtitle reveal reveal-delay-2">Funcionalidades en desarrollo y planificadas para los próximos ciclos.</p>
+    <div class="roadmap-grid">
+      <div class="roadmap-col reveal">
+        <h4>Ganadería</h4>
+        <ul>
+          <li class="highlight">Alertas automáticas de salud y comportamiento</li>
+          <li>Consultas a SARA por texto o voz</li>
+          <li>Reportes PDF por lote, fecha y establecimiento</li>
+          <li>Detección de eventos de seguridad perimetral</li>
+        </ul>
+      </div>
+      <div class="roadmap-col reveal reveal-delay-2">
+        <h4>Agricultura</h4>
+        <ul>
+          <li class="highlight">Historial de salud individual con IA predictiva</li>
+          <li>Mapa de malezas con aplicación selectiva</li>
+          <li>Monitoreo de maquinaria agrícola</li>
+          <li>Alertas de heladas y condiciones climáticas</li>
+        </ul>
+      </div>
+      <div class="roadmap-col reveal reveal-delay-4">
+        <h4>Plataforma</h4>
+        <ul>
+          <li class="highlight">Predicción de rendimiento por lote con IA</li>
+          <li>Mercado de datos agropecuarios anonimizados</li>
+          <li>Asistente satelital con cobertura total</li>
+          <li>Retrofitting inteligente en maquinaria existente</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ────────────────────────────────────────── -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">
+        <svg viewBox="0 0 280 235" aria-hidden="true">
+          <polygon points="100,75 180,75 140,5"/>
+          <polygon points="60,150 140,150 100,80"/>
+          <polygon points="100,80 180,80 140,150"/>
+          <polygon points="140,150 220,150 180,80"/>
+          <polygon points="20,225 100,225 60,155"/>
+          <polygon points="60,155 140,155 100,225"/>
+          <polygon points="100,225 180,225 140,155"/>
+          <polygon points="140,155 220,155 180,225"/>
+          <polygon points="180,225 260,225 220,155"/>
+        </svg>
+        AGROVISION&nbsp;<span class="ia">IA</span>
+      </div>
+      <p class="footer-desc">
+        Inteligencia artificial para el productor agropecuario.
+        Desarrollado en Argentina para el campo argentino.
+      </p>
+    </div>
+    <div class="footer-right">
+      <p class="label">Desarrollado por</p>
+      <p class="company">La Nube Computación</p>
+      <p class="location">Vicente López, Buenos Aires</p>
+    </div>
+  </div>
+  <div class="footer-copy">
+    &copy; 2026 AgroVision IA &middot; La Nube Computación
+  </div>
+</footer>
+
+<!-- ── SCRIPTS ───────────────────────────────────────── -->
+<script>
+// ── 1. NAV SCROLL ────────────────────────────────────
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
+
+// ── 2. SCROLL REVEAL ─────────────────────────────────
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+// ── 3. SMOOTH SCROLL ─────────────────────────────────
+document.querySelector('.btn-scroll').addEventListener('click', e => {
+  e.preventDefault();
+  document.getElementById('sistema').scrollIntoView({ behavior: 'smooth' });
+});
+
+// ── 4. LOGO SCATTER EFFECT ───────────────────────────
+// container: puede ser el <svg> directamente o un elemento padre que lo contiene
+function initLogoScatter(container) {
+  if (!container) return;
+  const svg   = (container.tagName && container.tagName.toLowerCase() === 'svg')
+                  ? container
+                  : container.querySelector('svg');
+  if (!svg) return;
+  const polys = [...container.querySelectorAll('polygon')];
+  const vb    = svg.viewBox.baseVal;
+  const cx    = vb.x + vb.width  / 2;
+  const cy    = vb.y + vb.height / 2;
+
+  polys.forEach((poly, i) => {
+    const pts = poly.points;
+    let px = 0, py = 0;
+    for (let j = 0; j < pts.numberOfItems; j++) {
+      px += pts.getItem(j).x;
+      py += pts.getItem(j).y;
+    }
+    px /= pts.numberOfItems;
+    py /= pts.numberOfItems;
+
+    const angle = Math.atan2(py - cy, px - cx);
+    const dist  = 80 + Math.random() * 60;
+    const tx    = Math.cos(angle) * dist;
+    const ty    = Math.sin(angle) * dist;
+    const rot   = (Math.random() - 0.5) * 45;
+
+    // CRÍTICO: usar view-box (no fill-box) porque los polígonos tienen fill:none
+    // → fill-box devuelve caja vacía y el transform no se aplica
+    // transform-origin como % del viewBox ubica el pivote en el centroide real
+    poly.style.transformBox    = 'view-box';
+    poly.style.transformOrigin = `${((px - vb.x) / vb.width  * 100).toFixed(1)}% `
+                               + `${((py - vb.y) / vb.height * 100).toFixed(1)}%`;
+    poly.style.transition      = `transform 0.45s cubic-bezier(0.23,1,0.32,1) ${i * 0.04}s,`
+                               + `opacity 0.4s ease ${i * 0.03}s`;
+    poly._scatter = `translate(${tx}px, ${ty}px) rotate(${rot}deg)`;
+  });
+
+  let scattered = false;
+  function scatter()  { if (scattered) return; scattered = true;  polys.forEach(p => { p.style.transform = p._scatter; p.style.opacity = '0.25'; }); }
+  function assemble() { if (!scattered) return; scattered = false; polys.forEach(p => { p.style.transform = ''; p.style.opacity = ''; }); }
+
+  container.addEventListener('mouseenter', scatter);
+  container.addEventListener('mouseleave', assemble);
+  container.addEventListener('touchstart', e => { e.preventDefault(); scattered ? assemble() : scatter(); }, { passive: false });
+}
+
+// Nav: hover sobre todo el bloque "AGROVISION IA" (texto + logo)
+initLogoScatter(document.getElementById('nav-brand-logo'));
+
+// ── 4b. HERO FX: palitos con estela + texto que se forma con granulado ──
+(function heroFX() {
+  const hero = document.getElementById('hero');
+  const cv   = document.getElementById('hero-fx');
+  const slot = document.getElementById('hero-logo-slot');
+  const h1   = hero && hero.querySelector('.hero-brand');
+  const sub  = hero && hero.querySelector('.hero-sub');
+  const finish = () => hero && hero.classList.add('formed');
+  if (!hero || !cv || !slot || !h1 || !sub) { finish(); return; }
+
+  const ctx    = cv.getContext('2d');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // 16 palitos medidos del video de referencia (px del video). Caja del logo: 745..1135 x 362..697
+  const SRC = [
+    [900,422,937,364],[945,364,980,422],[845,520,880,460],[1035,520,1000,460],
+    [850,526,922,526],[958,526,1030,526],[800,595,838,533],[1080,595,1043,533],
+    [855,552,925,668],[1022,552,955,668],[745,690,782,628],[1135,690,1100,628],
+    [750,697,823,697],[860,697,930,697],[950,697,1022,697],[1058,697,1130,697]
+  ];
+  const BX = 745, BY = 362, BW = 390, BH = 335;
+  const sticks = SRC.map((s, i) => ({
+    u1:(s[0]-BX)/BW, v1:(s[1]-BY)/BH, u2:(s[2]-BX)/BW, v2:(s[3]-BY)/BH,
+    ox:0, oy:0, rot:0, gx:0, gy:0, grot:0, hist:[],
+    start: 0.25 + i * 0.08 + Math.random() * 0.12, born:false
+  }));
+
+  let dpr = 1, HW = 0, HH = 0, L = { x:0, y:0, w:1, h:1 };
+  let particles = [], textStart = 0, formedAt = 0, formed = false;
+  let t0 = 0, last = 0, raf = 0, scattered = false, ready = false;
+
+  function layout() {
+    const hr = hero.getBoundingClientRect(), sr = slot.getBoundingClientRect();
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    HW = hr.width; HH = hr.height;
+    cv.width = Math.round(HW * dpr); cv.height = Math.round(HH * dpr);
+    L = { x: sr.left - hr.left, y: sr.top - hr.top, w: sr.width, h: sr.height };
+  }
+
+  function sampleText(el, step, size) {
+    const cs = getComputedStyle(el), r = el.getBoundingClientRect(), hr = hero.getBoundingClientRect();
+    const w = Math.ceil(r.width), h = Math.ceil(r.height);
+    const off = document.createElement('canvas'); off.width = w; off.height = h;
+    const o = off.getContext('2d', { willReadFrequently: true });
+    const ls = cs.letterSpacing === 'normal' ? 0 : parseFloat(cs.letterSpacing) || 0;
+    o.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    const up = cs.textTransform === 'uppercase';
+    const chars = [];
+    el.childNodes.forEach(n => {
+      let t = n.textContent || ''; if (!t) return;
+      if (up) t = t.toUpperCase();
+      const col = n.nodeType === 1 ? getComputedStyle(n).color : cs.color;
+      for (const ch of t) chars.push({ ch, col, adv: o.measureText(ch).width + ls });
+    });
+    const total = chars.reduce((a, c) => a + c.adv, 0);
+    const m = o.measureText('Mg');
+    const asc = m.fontBoundingBoxAscent || parseFloat(cs.fontSize) * 0.8;
+    const dsc = m.fontBoundingBoxDescent || parseFloat(cs.fontSize) * 0.2;
+    const base = (h - (asc + dsc)) / 2 + asc;
+    let x = (w - total) / 2;
+    chars.forEach(c => { o.fillStyle = c.col; o.fillText(c.ch, x, base); x += c.adv; });
+    const data = o.getImageData(0, 0, w, h).data;
+    const out = [];
+    for (let y = 0; y < h; y += step) for (let xx = 0; xx < w; xx += step) {
+      const k = (y * w + xx) * 4;
+      if (data[k+3] < 110) continue;
+      const R = data[k], G = data[k+1];
+      out.push({
+        tx: r.left - hr.left + xx + (Math.random() - .5) * step,
+        ty: r.top  - hr.top  + y  + (Math.random() - .5) * step,
+        c: R > G + 60 ? 1 : 0,              // 1 = terracota (IA), 0 = blanco/gris
+        a: (data[k+3] / 255) * (0.55 + Math.random() * 0.45),
+        sz: size
+      });
+    }
+    return out;
+  }
+
+  function buildParticles() {
+    const pts = sampleText(h1, 2, 1.5).concat(sampleText(sub, 1, 1));
+    let minX = Infinity, maxX = -Infinity;
+    pts.forEach(p => { if (p.tx < minX) minX = p.tx; if (p.tx > maxX) maxX = p.tx; });
+    const span = Math.max(1, maxX - minX);
+    pts.forEach(p => {
+      p.sx = p.tx - 80 - Math.random() * Math.min(420, HW * .35) + (Math.random() - .5) * 120;
+      p.sy = p.ty + (Math.random() - .5) * 170;
+      p.delay = ((p.tx - minX) / span) * 1.0 + Math.random() * 0.45;
+      p.dur = 1.1 + Math.random() * 0.7;
+    });
+    pts.sort((a, b) => a.c - b.c);
+    particles = pts;
+  }
+
+  function stickGeom(s) {
+    const x1 = L.x + s.u1 * L.w, y1 = L.y + s.v1 * L.h, x2 = L.x + s.u2 * L.w, y2 = L.y + s.v2 * L.h;
+    return { cx:(x1+x2)/2, cy:(y1+y2)/2, dx:(x2-x1)/2, dy:(y2-y1)/2 };
+  }
+  function drawStick(g, st, alpha, lw) {
+    ctx.save();
+    ctx.translate(g.cx + st.ox, g.cy + st.oy); ctx.rotate(st.rot);
+    ctx.globalAlpha = alpha; ctx.lineWidth = lw;
+    ctx.beginPath(); ctx.moveTo(-g.dx, -g.dy); ctx.lineTo(g.dx, g.dy); ctx.stroke();
+    ctx.restore();
+  }
+
+  function frame(now) {
+    raf = 0;
+    const t = (now - t0) / 1000;
+    const dt = Math.min(0.05, (now - last) / 1000 || 0.016); last = now;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, HW, HH);
+    let moving = false;
+
+    // — palitos —
+    const lw = Math.max(2, L.w * 0.0125);
+    ctx.strokeStyle = '#fff'; ctx.lineCap = 'round';
+    const rate = scattered ? 7 : 3.6, k = 1 - Math.exp(-dt * rate);
+    sticks.forEach(s => {
+      if (!s.born) {
+        if (t < s.start) { moving = true; return; }
+        s.born = true; s.bornAt = t;
+        const ang = Math.random() * Math.PI * 2, d = Math.min(HW, HH) * (0.4 + Math.random() * 0.45);
+        s.ox = Math.cos(ang) * d; s.oy = Math.sin(ang) * d; s.rot = (Math.random() - .5) * 5;
+      }
+      s.ox += (s.gx - s.ox) * k; s.oy += (s.gy - s.oy) * k; s.rot += (s.grot - s.rot) * k;
+      s.hist.push({ ox:s.ox, oy:s.oy, rot:s.rot }); if (s.hist.length > 16) s.hist.shift();
+      const g = stickGeom(s);
+      const dist = Math.hypot(s.ox - s.gx, s.oy - s.gy) + Math.abs(s.rot - s.grot) * 20;
+      if (dist > 0.15) moving = true; else { s.ox = s.gx; s.oy = s.gy; s.rot = s.grot; }
+      // estela: copias fantasma finas + puntitos
+      if (dist > 1.5) {
+        const n = s.hist.length;
+        for (let i = 0; i < n - 1; i++) {
+          const h = s.hist[i], a = 0.42 * (i / n);
+          drawStick(g, h, a, 1);
+          ctx.globalAlpha = a * 1.6; ctx.fillStyle = '#fff';
+          ctx.fillRect(g.cx + h.ox + (Math.random() - .5) * 10, g.cy + h.oy + (Math.random() - .5) * 10, 1.4, 1.4);
+        }
+      }
+      drawStick(g, s, Math.min(1, (t - s.bornAt) * 8), lw);
+    });
+
+    // — texto granulado —
+    if (!formed && textStart && t >= textStart) {
+      moving = true;
+      const tt = t - textStart;
+      let allIn = true, cur = -1;
+      for (const p of particles) {
+        const l = (tt - p.delay) / p.dur;
+        if (l < 1) allIn = false;
+        if (l <= 0) continue;
+        const lc = Math.min(1, l), e = 1 - Math.pow(1 - lc, 3);
+        if (p.c !== cur) { cur = p.c; ctx.fillStyle = cur ? '#e05a2b' : '#ffffff'; }
+        ctx.globalAlpha = Math.min(1, lc * 3) * p.a;
+        ctx.fillRect(p.sx + (p.tx - p.sx) * e, p.sy + (p.ty - p.sy) * e, p.sz, p.sz);
+      }
+      if (allIn) { formed = true; formedAt = t; finish(); }
+    } else if (formed && t - formedAt < 0.9) {
+      moving = true;
+      const fa = 1 - (t - formedAt) / 0.9;
+      let cur = -1;
+      for (const p of particles) {
+        if (p.c !== cur) { cur = p.c; ctx.fillStyle = cur ? '#e05a2b' : '#ffffff'; }
+        ctx.globalAlpha = fa * p.a; ctx.fillRect(p.tx, p.ty, p.sz, p.sz);
+      }
+    }
+    if (!formed) moving = true;
+
+    ctx.globalAlpha = 1;
+    if (moving || scattered) raf = requestAnimationFrame(frame);
+  }
+  function wake() { if (!raf && ready) { last = performance.now(); raf = requestAnimationFrame(frame); } }
+
+  // — hover: los palitos se dispersan con estela y vuelven —
+  function scatter() {
+    if (scattered || !formed) return; scattered = true;
+    sticks.forEach(s => {
+      const g = stickGeom(s), ang = Math.atan2(g.cy - (L.y + L.h / 2), g.cx - (L.x + L.w / 2)) + (Math.random() - .5) * .8;
+      const d = L.w * (0.12 + Math.random() * 0.16);
+      s.gx = Math.cos(ang) * d; s.gy = Math.sin(ang) * d; s.grot = (Math.random() - .5) * 1.6;
+    });
+    wake();
+  }
+  function assemble() {
+    if (!scattered) return; scattered = false;
+    sticks.forEach(s => { s.gx = s.gy = s.grot = 0; });
+    wake();
+  }
+  slot.addEventListener('mouseenter', scatter);
+  slot.addEventListener('mouseleave', assemble);
+  slot.addEventListener('touchstart', e => { e.preventDefault(); scattered ? assemble() : scatter(); }, { passive: false });
+
+  window.addEventListener('resize', () => {
+    layout(); if (!formed) { formed = true; formedAt = -99; finish(); }
+    wake();
+  });
+
+  function start() {
+    layout();
+    if (reduce) {
+      sticks.forEach(s => { s.born = true; s.bornAt = -9; });
+      formed = true; formedAt = -99; ready = true; finish(); wake(); return;
+    }
+    try { buildParticles(); } catch (e) { finish(); }
+    textStart = 3.0; ready = true;
+    t0 = performance.now(); last = t0; raf = requestAnimationFrame(frame);
+  }
+  const go = () => requestAnimationFrame(start);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();
+  setTimeout(finish, 12000);   // red de seguridad: el texto real siempre aparece
+})();
+// ── 5. SARA BOT — LIP SYNC + SPEECH ─────────────────
+(function() {
+  const container   = document.getElementById('saraBotContainer');
+  const saraMouth   = document.getElementById('saraMouth');
+  const statusLabel = document.getElementById('statusLabel');
+  const statusDot   = document.getElementById('statusDot');
+  const saraHint    = document.getElementById('saraHint');
+  if (!container || !saraMouth) return;
+
+  const mouthShapes = [
+    "M 132 161 Q 150 174 168 161",
+    "M 134 160 Q 150 178 166 160",
+    "M 142 162 C 142 157 158 157 158 162 C 158 172 142 172 142 162",
+    "M 136 163 C 136 158 164 158 164 163 C 164 171 136 171 136 163",
+    "M 134 163 L 166 163",
+    "M 138 164 C 138 160 162 160 162 164 C 162 169 138 169 138 164",
+    "M 144 163 C 144 160 156 160 156 163 C 156 168 144 168 144 163"
+  ];
+
+  const frasesSara = [
+    "¡Hola! Soy SARA, tu asistente de campo. Puedo informarte sobre el estado de tus lotes, el clima y la salud de tu hacienda en cualquier momento.",
+    "La humedad útil en los primeros 40 centímetros está en 42%. Te sugiero iniciar el riego mañana temprano con 18 milímetros.",
+    "Lote de maíz verificado: el balance hídrico es óptimo para la etapa fenológica actual. Sin necesidad de intervención por ahora."
+  ];
+
+  let isSpeaking = false, mouthInterval = null, fraseIndex = 0;
+
+  function startLipSync() {
+    if (mouthInterval) clearInterval(mouthInterval);
+    mouthInterval = setInterval(() => {
+      const idx = Math.floor(Math.random() * (mouthShapes.length - 1)) + 1;
+      saraMouth.setAttribute('d', mouthShapes[idx]);
+      saraMouth.setAttribute('fill', (idx === 2 || idx === 3 || idx === 6) ? '#fbb034' : 'none');
+    }, 110);
+  }
+  function stopLipSync() {
+    if (mouthInterval) { clearInterval(mouthInterval); mouthInterval = null; }
+    saraMouth.setAttribute('d', mouthShapes[0]);
+    saraMouth.setAttribute('fill', 'none');
+  }
+  function setIdle() {
+    isSpeaking = false;
+    saraHint.classList.remove('speaking');
+    statusLabel.textContent = 'Tocá a Sara para escucharla';
+  }
+
+  container.addEventListener('click', () => {
+    if (isSpeaking) {
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      stopLipSync(); setIdle(); return;
+    }
+    isSpeaking = true;
+    saraHint.classList.add('speaking');
+    statusLabel.textContent = 'Sara está hablando...';
+    startLipSync();
+
+    const texto = frasesSara[fraseIndex % frasesSara.length];
+    fraseIndex++;
+
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utt   = new SpeechSynthesisUtterance(texto);
+      utt.lang    = 'es-AR';
+      utt.rate    = 1.05;
+      utt.pitch   = 1.2;
+      const voices = window.speechSynthesis.getVoices();
+      const fem    = voices.find(v => v.lang.startsWith('es') && /sabina|monica|paulina|laura|helena|lucia|female/i.test(v.name));
+      if (fem) utt.voice = fem;
+      utt.onend  = () => { stopLipSync(); setIdle(); };
+      utt.onerror= () => { stopLipSync(); setIdle(); };
+      window.speechSynthesis.speak(utt);
+    } else {
+      setTimeout(() => { stopLipSync(); setIdle(); }, 5500);
+    }
+  });
+
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+  }
+})();
+</script>
+
+</body>
+</html>

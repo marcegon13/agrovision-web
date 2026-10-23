@@ -1,0 +1,10 @@
+node_modules/
+.env
+.env.*
+*.txt
+index_respaldo_*.html
+index_con_ventas.html
+index_con_ventas_v[2-9].html
+index_con_ventas_v5b.html
+tts-server.js
+img/rambo*.png

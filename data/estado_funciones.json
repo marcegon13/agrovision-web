@@ -1,0 +1,187 @@
+{
+  "version": 1,
+  "actualizado": "2026-10-14",
+  "estados": ["FUNCIONA", "EN_ARMADO", "EN_DESARROLLO", "EN_DISENO", "A_FUTURO"],
+  "funciones": [
+    {
+      "id": "conteo_video",
+      "area": "ganaderia",
+      "nombre": "Conteo de animales por video",
+      "estado": "FUNCIONA",
+      "nota": "en validación: 10 contados vs 14 a mano en la prueba del 13/10/2026",
+      "fuente": "pitch 13/10 + prueba 13/10",
+      "fecha_verificacion": "2026-10-13"
+    },
+    {
+      "id": "separacion_grandes_pequenos",
+      "area": "ganaderia",
+      "nombre": "Separación de grandes y pequeños",
+      "estado": "FUNCIONA",
+      "nota": "",
+      "fuente": "pitch 13/10",
+      "fecha_verificacion": "2026-10-13"
+    },
+    {
+      "id": "caravanas_sin_manga",
+      "area": "ganaderia",
+      "nombre": "Lectura de caravanas sin manga",
+      "estado": "EN_ARMADO",
+      "nota": "en el ejecutable no hay lectura: EasyOCR no está incluido",
+      "fuente": "prueba del ejecutable 14/10",
+      "fecha_verificacion": "2026-10-14"
+    },
+    {
+      "id": "cerco_y_agua",
+      "area": "ganaderia",
+      "nombre": "Control de cerco y agua",
+      "estado": "EN_ARMADO",
+      "nota": "",
+      "fuente": "pitch 13/10",
+      "fecha_verificacion": "2026-10-13"
+    },
+    {
+      "id": "semaforo_pastoreo",
+      "area": "ganaderia",
+      "nombre": "Semáforo de pastoreo",
+      "estado": "EN_DISENO",
+      "nota": "",
+      "fuente": "pitch 13/10",
+      "fecha_verificacion": "2026-10-13"
+    },
+    {
+      "id": "metricas_por_animal",
+      "area": "ganaderia",
+      "nombre": "Métricas por animal",
+      "estado": "EN_DESARROLLO",
+      "nota": "",
+      "fuente": "pitch 13/10",
+      "fecha_verificacion": "2026-10-13"
+    },
+    {
+      "id": "collar",
+      "area": "ganaderia",
+      "nombre": "Collar",
+      "estado": "EN_DISENO",
+      "nota": "",
+      "fuente": "pitch 13/10",
+      "fecha_verificacion": "2026-10-13"
+    },
+    {
+      "id": "pastoreo_rotativo",
+      "area": "ganaderia",
+      "nombre": "Pastoreo rotativo",
+      "estado": "A_FUTURO",
+      "nota": "",
+      "fuente": "pitch 13/10",
+      "fecha_verificacion": "2026-10-13"
+    },
+    {
+      "id": "peso_por_camara",
+      "area": "ganaderia",
+      "nombre": "Peso por cámara",
+      "estado": "EN_DESARROLLO",
+      "nota": "estimación sin calibrar; validación contra balanza en noviembre 2026",
+      "fuente": "pitch 13/10",
+      "fecha_verificacion": "2026-10-13"
+    },
+    {
+      "id": "analisis_suelo",
+      "area": "agricultura",
+      "nombre": "Análisis de suelo",
+      "estado": "FUNCIONA",
+      "nota": "verificar en la prueba antes de mostrarlo",
+      "fuente": "pitch 13/10",
+      "fecha_verificacion": "2026-10-13"
+    },
+    {
+      "id": "vigor_satelital",
+      "area": "agricultura",
+      "nombre": "Vigor satelital",
+      "estado": "FUNCIONA",
+      "nota": "verificar en la prueba antes de mostrarlo",
+      "fuente": "pitch 13/10",
+      "fecha_verificacion": "2026-10-13"
+    },
+    {
+      "id": "clima_estacion",
+      "area": "agricultura",
+      "nombre": "Estación climática",
+      "estado": "EN_ARMADO",
+      "nota": "",
+      "fuente": "pitch 13/10",
+      "fecha_verificacion": "2026-10-13"
+    },
+    {
+      "id": "sembradora_tractor",
+      "area": "agricultura",
+      "nombre": "Sembradora en tractor",
+      "estado": "EN_DISENO",
+      "nota": "",
+      "fuente": "pitch 13/10",
+      "fecha_verificacion": "2026-10-13"
+    },
+    {
+      "id": "domo_hd",
+      "area": "agricultura",
+      "nombre": "Domo HD",
+      "estado": "A_FUTURO",
+      "nota": "",
+      "fuente": "pitch 13/10",
+      "fecha_verificacion": "2026-10-13"
+    },
+    {
+      "id": "chat_sara",
+      "area": "plataforma",
+      "nombre": "Chat SARA",
+      "estado": "FUNCIONA",
+      "nota": "respuestas a veces cortadas: ver ajuste",
+      "fuente": "pitch 13/10 + panel/index.html",
+      "fecha_verificacion": "2026-10-13"
+    },
+    {
+      "id": "panel_ultimo_escaneo",
+      "area": "plataforma",
+      "nombre": "Panel: último escaneo",
+      "estado": "EN_ARMADO",
+      "nota": "el panel todavía no muestra el dashboard del último escaneo",
+      "fuente": "pitch 13/10 + revisión 14/10",
+      "fecha_verificacion": "2026-10-14"
+    },
+    {
+      "id": "panel_acceso_por_cliente",
+      "area": "plataforma",
+      "nombre": "Panel: acceso por cliente",
+      "estado": "EN_DESARROLLO",
+      "nota": "",
+      "fuente": "pitch 13/10",
+      "fecha_verificacion": "2026-10-13"
+    },
+    {
+      "id": "login_google",
+      "area": "plataforma",
+      "nombre": "Login con Google",
+      "estado": "EN_DESARROLLO",
+      "nota": "",
+      "fuente": "plan interno 14/10",
+      "fecha_verificacion": "2026-10-14"
+    },
+    {
+      "id": "asesor_web_siete_preguntas",
+      "area": "plataforma",
+      "nombre": "Asesor web de siete preguntas",
+      "estado": "EN_DESARROLLO",
+      "nota": "Chatbox de ventas en diseño. El widget actual no está incluido en index.html y responde por palabras clave; faltan las siete preguntas y la captura de leads.",
+      "fuente": "revisión repo 14/10",
+      "fecha_verificacion": "2026-10-14"
+    },
+    {
+      "id": "instalador_escritorio",
+      "area": "plataforma",
+      "nombre": "Instalador de escritorio",
+      "estado": "EN_ARMADO",
+      "nota": "entrega zip para Tano; instalador pendiente",
+      "fuente": "prueba 14/10",
+      "fecha_verificacion": "2026-10-14"
+    }
+  ]
+}

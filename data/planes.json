@@ -1,0 +1,8 @@
+{
+  "estado": "PENDIENTE_DECISION",
+  "planes": [
+    {"id": "panel", "nombre": "Panel", "precio_usd_mes": null, "prueba_dias": 14},
+    {"id": "arranque", "nombre": "Arranque", "precio_equipos_usd": null, "membresia_usd_mes": null},
+    {"id": "campo_completo", "nombre": "Campo completo", "precio_equipos_usd": null, "membresia_usd_mes": null}
+  ]
+}
