@@ -670,6 +670,9 @@
   #sara-duo .vs-chip { padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.04); font-size: .82rem; cursor: pointer; }
   #sara-duo .vs-chip:hover { border-color: rgba(77,159,255,.6); }
   #sara-duo .vs-chip.tema { border-color: rgba(30,111,255,.35); }
+  #sara-duo .vs-chip.sel { background: rgba(30,111,255,.3); border-color: var(--blue); }
+  #sara-duo .vs-chip.confirmar { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 600; }
+  #sara-duo .vs-chip:disabled { opacity: .45; cursor: default; }
   #sara-duo .vs-temas-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; margin: 0; padding: 4px 0 10px; background: none; border: none; cursor: pointer; color: inherit; text-align: left; }
   #sara-duo .vs-temas-toggle:focus-visible { outline: 2px solid rgba(77,159,255,.6); outline-offset: 2px; border-radius: 6px; }
   #sara-duo .vs-temas-toggle .vs-flecha { width: 14px; height: 14px; flex: 0 0 14px; transition: transform .2s ease; }
@@ -882,7 +885,7 @@
       accion: 'No está implementado. Hoy no lo ofrecemos.' },
     { nombre: 'Planes y precios', estado: '', palabras: ['precio', 'costo', 'cuesta', 'planes', 'mensual', 'usd', 'vale'],
       texto: 'Panel AgroVision: 14 días gratis y después USD 50 por mes, con PC o sin PC. Plan Arranque: USD 120 por mes, con equipos desde unos USD 5.400 con IVA e instalación. Plan Campo completo: USD 250 por mes, con equipos e instalación entre USD 36.000 y 43.000. Vuelo de dron opcional desde USD 1.000 + IVA.',
-      accion: 'Los equipos van al costo más 20 %. Pedí la cotización final desde el chat y te la mandamos por WhatsApp.' }
+      accion: 'Pedí la cotización final desde el chat y te la mandamos por WhatsApp.' }
   ];
 
   // Las 7 preguntas del documento de asesor, en ese orden.
@@ -891,7 +894,7 @@
     { pregunta: '¿A qué te dedicás?', opciones: ['Cría', 'Invernada', 'Tambo', 'Agricultura', 'Mixto', 'Contratista', 'Asesor (agrónomo o veterinario)'] },
     { pregunta: '¿Cuántas hectáreas y cuántas cabezas?', opciones: ['Menos de 100 cabezas', '100 a 500 cabezas', 'Más de 500 cabezas', 'Sin hacienda'] },
     { pregunta: '¿Dónde sentís que perdés más plata?', opciones: ['Animales que faltan', 'Preñez y destete', 'Agua y cerco', 'Sanidad', 'Maquinaria y gasoil', 'Siembra y aplicación', 'Clima'] },
-    { pregunta: '¿Qué tenés hoy en el campo?', opciones: ['PC en el casco', 'Cámara', 'Wifi o Starlink', 'Señal de celular', 'Luz de red o solar', 'Caravanas electrónicas o bastón', 'Boyero', 'Nada de esto'] },
+    { pregunta: '¿Qué tenés hoy en el campo?', multiple: true, opciones: ['PC en el casco', 'Cámara', 'Wifi o Starlink', 'Señal de celular', 'Luz de red o solar', 'Caravanas electrónicas o bastón', 'Boyero', 'Nada de esto'] },
     { pregunta: '¿Quién decide la compra?', opciones: ['Yo', 'Con socio o familia', 'Un administrador', 'Mi asesor'] },
     { pregunta: '¿Cuándo querés empezar?', opciones: ['Ya', 'Esta campaña', 'Estoy averiguando'] }
   ];
@@ -1036,10 +1039,36 @@
     const p = PREGUNTAS[paso];
     burbuja('bot', p.pregunta);
     guiaTitulo.textContent = 'Pregunta ' + (paso + 1) + ' de ' + PREGUNTAS.length + ' · podés saltearla';
-    p.opciones.forEach(op => chips.appendChild(chip(op, '', () => {
-      if (op.indexOf('Escribir') === 0) { entrada.placeholder = op; entrada.focus(); return; }
-      registrar(op);
-    })));
+    if (p.multiple) {
+      // Selección múltiple: "Nada de esto" es excluyente y se confirma con el botón.
+      const elegidos = new Set();
+      const confirmar = chip('Confirmar', 'confirmar', () => registrar([...elegidos].join(', ')));
+      confirmar.disabled = true;
+      p.opciones.forEach(op => {
+        const c = chip(op, '', () => {
+          if (elegidos.has(op)) elegidos.delete(op);
+          else {
+            if (op === 'Nada de esto') elegidos.clear();
+            else elegidos.delete('Nada de esto');
+            elegidos.add(op);
+          }
+          chips.querySelectorAll('.vs-chip:not(.confirmar)').forEach(el => {
+            const on = elegidos.has(el.textContent);
+            el.classList.toggle('sel', on);
+            el.setAttribute('aria-pressed', String(on));
+          });
+          confirmar.disabled = elegidos.size === 0;
+        });
+        c.setAttribute('aria-pressed', 'false');
+        chips.appendChild(c);
+      });
+      chips.appendChild(confirmar);
+    } else {
+      p.opciones.forEach(op => chips.appendChild(chip(op, '', () => {
+        if (op.indexOf('Escribir') === 0) { entrada.placeholder = op; entrada.focus(); return; }
+        registrar(op);
+      })));
+    }
     chips.appendChild(chip('Saltar', '', () => { paso++; preguntarSiguiente(); }));
     guia.classList.add('on');
   }
