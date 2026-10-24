@@ -650,7 +650,7 @@
   #sara-duo .b-des { border-color: rgba(77,159,255,.6); color: var(--blue-lt); }
   #sara-duo .b-fut { opacity: .55; }
 
-  #sara-duo .vs-app { border: 1px solid rgba(255,255,255,.1); border-radius: 18px; background: rgba(255,255,255,.03); display: flex; flex-direction: column; height: min(640px, 78vh); overflow: hidden; box-shadow: 0 30px 60px -30px rgba(30,111,255,.35); }
+  #sara-duo .vs-app { border: 1px solid rgba(255,255,255,.1); border-radius: 18px; background: rgba(255,255,255,.03); display: flex; flex-direction: column; height: min(720px, 88vh); overflow: hidden; box-shadow: 0 30px 60px -30px rgba(30,111,255,.35); }
   #sara-duo .vs-chat { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   #sara-duo .vs-chat-inner { padding: 18px 16px 10px; display: flex; flex-direction: column; gap: 12px; }
   #sara-duo .vs-msg { display: flex; align-items: flex-end; gap: 10px; animation: vsAparecer .3s ease; }
@@ -662,7 +662,7 @@
   #sara-duo .vs-msg.user .vs-bubble { background: rgba(30,111,255,.25); border: 1px solid rgba(30,111,255,.35); border-bottom-right-radius: 4px; }
   #sara-duo .vs-msg.error .vs-bubble { color: #ff8a8a; background: rgba(255,107,107,.08); border: 1px solid rgba(255,107,107,.35); }
 
-  #sara-duo .vs-temas, #sara-duo .vs-guia { border-top: 1px solid rgba(255,255,255,.1); padding: 10px 12px 0; }
+  #sara-duo .vs-guia { border-top: 1px solid rgba(255,255,255,.1); padding: 10px 12px 0; }
   #sara-duo .vs-guia { display: none; }
   #sara-duo .vs-guia.on { display: block; }
   #sara-duo .vs-etiqueta { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: rgba(240,244,255,.5); margin-bottom: 8px; }
@@ -673,17 +673,12 @@
   #sara-duo .vs-chip.sel { background: rgba(30,111,255,.3); border-color: var(--blue); }
   #sara-duo .vs-chip.confirmar { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 600; }
   #sara-duo .vs-chip:disabled { opacity: .45; cursor: default; }
-  #sara-duo .vs-temas-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; margin: 0; padding: 4px 0 10px; background: none; border: none; cursor: pointer; color: inherit; text-align: left; }
-  #sara-duo .vs-temas-toggle:focus-visible { outline: 2px solid rgba(77,159,255,.6); outline-offset: 2px; border-radius: 6px; }
-  #sara-duo .vs-temas-toggle .vs-flecha { width: 14px; height: 14px; flex: 0 0 14px; transition: transform .2s ease; }
-  #sara-duo .vs-temas-toggle[aria-expanded="true"] .vs-flecha { transform: rotate(180deg); }
-  #sara-duo .vs-temas-lista { display: none; max-height: 130px; overflow-y: auto; padding-bottom: 0; }
-  #sara-duo .vs-temas-lista.abierta { display: flex; }
+  #sara-duo .vs-sugeridas { display: flex; flex-wrap: wrap; gap: 6px; padding: 2px 0 6px 40px; animation: vsAparecer .3s ease; }
 
-  #sara-duo .vs-composer { border-top: 1px solid rgba(255,255,255,.1); padding: 10px 12px; }
+  #sara-duo .vs-composer { width: 100%; box-sizing: border-box; border-top: 1px solid rgba(255,255,255,.1); padding: 10px 12px; }
   #sara-duo .vs-composer-inner { display: flex; align-items: flex-end; gap: 8px; padding: 6px 6px 6px 14px; border-radius: 14px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); transition: border-color .2s; }
   #sara-duo .vs-composer-inner:focus-within { border-color: rgba(77,159,255,.55); }
-  #sara-duo #vs-entrada { flex: 1; min-width: 0; resize: none; max-height: 120px; background: transparent; border: none; outline: none; font-size: .93rem; line-height: 1.4; padding: 9px 4px; }
+  #sara-duo #vs-entrada { flex: 1 1 auto; width: 100%; min-width: 0; resize: none; max-height: 120px; background: transparent; border: none; outline: none; font-size: .93rem; line-height: 1.4; padding: 9px 4px; }
   #sara-duo #vs-entrada::placeholder { color: rgba(240,244,255,.5); }
   #sara-duo #vs-enviar { flex: 0 0 40px; width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--blue); display: flex; align-items: center; justify-content: center; cursor: pointer; }
   #sara-duo #vs-enviar:hover { background: #3a80ff; }
@@ -704,8 +699,8 @@
   #sara-duo .vs-lead-msg { margin-top: 10px; font-size: .9rem; min-height: 1.2em; }
   #sara-duo .vs-lead-msg.error { color: #ff8a8a; }
   #sara-duo .vs-lead-msg a { color: var(--blue-lt); }
-  #sara-duo .vs-stage { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 16px 12px; border-bottom: 1px solid rgba(255,255,255,.1); background: radial-gradient(ellipse at 50% 0%, rgba(30,111,255,.18), transparent 70%); }
-  #sara-duo .vs-mascota { position: relative; width: 112px; height: 112px; display: flex; align-items: center; justify-content: center; }
+  #sara-duo .vs-stage { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,.1); background: radial-gradient(ellipse at 50% 0%, rgba(30,111,255,.18), transparent 70%); }
+  #sara-duo .vs-mascota { position: relative; width: 84px; height: 84px; display: flex; align-items: center; justify-content: center; }
   #sara-duo .vs-mascota img { width: 100%; height: auto; display: block; position: relative; z-index: 1; animation: vsFlotar 3.2s ease-in-out infinite; }
   #sara-duo .vs-onda { position: absolute; inset: 14%; border-radius: 50%; border: 2px solid rgba(77,159,255,.55); opacity: 0; pointer-events: none; }
   #sara-duo .vs-mascota.hablando img { animation: vsHablar .45s ease-in-out infinite; }
@@ -727,17 +722,15 @@
 
   @media (max-width: 900px) {
     #sara-duo .duo { grid-template-columns: 1fr; gap: 28px; }
-    #sara-duo .vs-app { height: min(600px, 74vh); }
+    #sara-duo .vs-app { height: min(680px, 88vh); }
   }
   @media (max-width: 420px) {
     #sara-duo { padding: 36px 0 40px; }
     #sara-duo .duo { padding: 0 16px; }
     #sara-duo .vs-bubble { max-width: 90%; }
-    #sara-duo .vs-stage { padding: 8px 12px; gap: 6px; }
-    #sara-duo .vs-mascota { width: 84px; height: 84px; }
-    #sara-duo .vs-app { height: min(640px, 82vh); }
-    #sara-duo #vs-temas { flex-wrap: wrap; overflow-x: hidden; padding-bottom: 8px; }
-    #sara-duo #vs-temas .vs-chip { flex: 0 0 auto; white-space: nowrap; }
+    #sara-duo .vs-stage { padding: 6px 10px; gap: 6px; }
+    #sara-duo .vs-mascota { width: 60px; height: 60px; }
+    #sara-duo .vs-app { height: 88vh; }
   }
 </style>
 
@@ -769,14 +762,6 @@
       <main class="vs-chat" id="vs-chat" aria-live="polite">
         <div class="vs-chat-inner" id="vs-chat-inner"></div>
       </main>
-
-      <div class="vs-temas">
-        <button type="button" class="vs-etiqueta vs-temas-toggle" id="vs-temas-toggle" aria-expanded="false" aria-controls="vs-temas">
-          <span>Preguntas rápidas</span>
-          <svg class="vs-flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <div class="vs-chips vs-temas-lista" id="vs-temas"></div>
-      </div>
 
       <div class="vs-guia" id="vs-guia">
         <p class="vs-etiqueta" id="vs-guia-titulo"></p>
@@ -937,7 +922,7 @@
     else { try { speechSynthesis.cancel(); } catch (e) {} masc.classList.remove('hablando'); }
   });
   const form = $('vs-form'), entrada = $('vs-entrada');
-  const temas = $('vs-temas'), guia = $('vs-guia'), guiaTitulo = $('vs-guia-titulo'), chips = $('vs-chips');
+  const guia = $('vs-guia'), guiaTitulo = $('vs-guia-titulo'), chips = $('vs-chips');
   const cotizar = $('vs-cotizar'), lead = $('vs-lead'), leadMsg = $('vs-lead-msg');
 
   // Estado de la conversación
@@ -991,7 +976,7 @@
   }
 
   // Busca la función con más palabras coincidentes. Sin coincidencias, devuelve null.
-  function responder(texto) {
+  function buscarFuncion(texto) {
     const t = norm(texto);
     if (!t.trim()) return null;
     let mejor = null, puntaje = 0;
@@ -999,6 +984,13 @@
       const p = f.palabras.reduce((n, w) => n + (t.includes(norm(w)) ? 1 : 0), 0);
       if (p > puntaje) { puntaje = p; mejor = f; }
     });
+    return mejor;
+  }
+
+  function responder(texto) {
+    const t = norm(texto);
+    if (!t.trim()) return null;
+    const mejor = buscarFuncion(texto);
     if (mejor) return formatoFuncion(mejor);
     if (/funcion|hoy|que hace|que tiene|que sirve|que anda/.test(t)) return resumenPorEstado();
     return null;
@@ -1107,6 +1099,7 @@
     if (!limpio) return;
     entrada.value = '';
     ajustarAltura();
+    limpiarSugerencias();
 
     if (etapa === 'nombre') {
       nombre = limpio.slice(0, 40);
@@ -1124,7 +1117,7 @@
     burbuja('user', limpio);
     const t = norm(limpio);
     if (/^(hola|holi|holis|buenas|buen dia|buenos dias|buenas tardes|buenas noches|hey|hi|que tal|como andas)\b/.test(t)) {
-      burbuja('bot', 'Hola, soy SARA. Podés tocar una pregunta rápida o escribir algo como conteo, peso, perímetro, zonas, suelo, SENASA, lluvia, alertas o precio.');
+      burbuja('bot', 'Hola, soy SARA. Escribí tu pregunta o contame qué querés saber de tu campo.');
       return;
     }
     if (/^(gracias|muchas gracias|genial|perfecto|ok|dale)\b/.test(t)) {
@@ -1133,6 +1126,7 @@
     }
     const r = responder(limpio);
     burbuja(r ? 'bot' : 'error', r || FALLBACK);
+    sugerir(buscarFuncion(limpio));
   }
 
   function ajustarAltura() {
@@ -1146,26 +1140,37 @@
     if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); procesar(entrada.value); }
   });
 
-  // Temas rápidos: siempre disponibles, responden sin tocar el registro de preguntas.
-  const temasToggle = $('vs-temas-toggle');
-  function cerrarTemas() {
-    temas.classList.remove('abierta');
-    temasToggle.setAttribute('aria-expanded', 'false');
+  // Sugerencias: tras una respuesta, hasta 3 temas relacionados (sin el tema actual).
+  function limpiarSugerencias() {
+    const previa = chatInner.querySelector('.vs-sugeridas');
+    if (previa) previa.remove();
   }
-  temasToggle.addEventListener('click', () => {
-    const abre = !temas.classList.contains('abierta');
-    temas.classList.toggle('abierta', abre);
-    temasToggle.setAttribute('aria-expanded', String(abre));
-  });
 
-  TEMAS.forEach(tema => {
-    temas.appendChild(chip(tema, 'tema', () => {
-      cerrarTemas();
-      burbuja('user', tema);
-      const r = responder(tema);
-      burbuja(r ? 'bot' : 'error', r || FALLBACK);
-    }));
-  });
+  function responderTema(tema) {
+    limpiarSugerencias();
+    burbuja('user', tema);
+    const r = responder(tema);
+    burbuja(r ? 'bot' : 'error', r || FALLBACK);
+    sugerir(buscarFuncion(tema));
+  }
+
+  function sugerir(actual) {
+    limpiarSugerencias();
+    if (!actual) return;
+    const relacionados = TEMAS
+      .map(tema => ({ tema, otra: buscarFuncion(tema) }))
+      .filter(c => c.otra && c.otra !== actual)
+      .map(c => ({ ...c, puntaje: c.otra.palabras.filter(w => actual.palabras.includes(w)).length }))
+      .filter(c => c.puntaje > 0)
+      .sort((a, b) => b.puntaje - a.puntaje)
+      .slice(0, 3);
+    if (!relacionados.length) return;
+    const fila = document.createElement('div');
+    fila.className = 'vs-sugeridas';
+    relacionados.forEach(c => fila.appendChild(chip(c.tema, 'tema', () => responderTema(c.tema))));
+    chatInner.appendChild(fila);
+    scrollFinal();
+  }
 
   cotizar.addEventListener('click', () => {
     if (etapa === 'cotizacion' || etapa === 'resumen') { abrirCotizacion(); return; }
