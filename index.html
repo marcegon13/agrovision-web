@@ -834,7 +834,7 @@
   const ORDEN = ['Disponible', 'En proceso', 'Con componente', 'A futuro'];
 
   // Catálogo cerrado: SARA sólo responde con esto. Estado según lo probado y el documento de asesor (13 oct 2026).
-  const FUNCIONES = [
+  let FUNCIONES = [
     { nombre: 'Conteo de animales en video', estado: 'Disponible', palabras: ['cont', 'cuenta', 'cabeza', 'animal', 'video', 'escane', 'manga'],
       texto: 'Con el software en la PC, subís un video de la manga o del corral y el sistema cuenta los animales.',
       accion: 'Hoy se usa con video grabado. Para que cuente bien, la cámara tiene que estar fija, a la altura de la manga y con buena luz.' },
@@ -898,7 +898,7 @@
   ];
 
   // Las 7 preguntas del documento de asesor, en ese orden.
-  const PREGUNTAS = [
+  let PREGUNTAS = [
     { pregunta: '¿Dónde está tu campo?', opciones: ['Escribir localidad'] },
     { pregunta: '¿A qué te dedicás?', opciones: ['Cría', 'Invernada', 'Tambo', 'Agricultura', 'Mixto', 'Contratista', 'Asesor (agrónomo o veterinario)'] },
     { pregunta: '¿Cuántas hectáreas y cuántas cabezas?', opciones: ['Menos de 100 cabezas', '100 a 500 cabezas', 'Más de 500 cabezas', 'Sin hacienda'] },
@@ -907,6 +907,17 @@
     { pregunta: '¿Quién decide la compra?', opciones: ['Yo', 'Con socio o familia', 'Un administrador', 'Mi asesor'] },
     { pregunta: '¿Cuándo querés empezar?', opciones: ['Ya', 'Esta campaña', 'Estoy averiguando'] }
   ];
+
+  // Datos desde el servidor. Si no llegan o tienen otra forma, quedan los valores de respaldo.
+  fetch('https://agrovisionia.cloud/api/sara/ventas/config')
+    .then(r => (r.ok ? r.json() : null))
+    .then(d => {
+      const ok = d && Array.isArray(d.funciones) && d.funciones.length && Array.isArray(d.cuestionario) && d.cuestionario.length
+        && d.funciones.every(f => f.nombre && Array.isArray(f.palabras))
+        && d.cuestionario.every(p => p.pregunta && Array.isArray(p.opciones));
+      if (ok) { FUNCIONES = d.funciones; PREGUNTAS = d.cuestionario; }
+    })
+    .catch(() => {});
 
   // Rubro según "¿A qué te dedicás?": agricultura, ganaderia o mixto (Mixto y Contratista quedan en mixto).
   function rubro() {
