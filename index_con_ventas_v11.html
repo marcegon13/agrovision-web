@@ -882,7 +882,7 @@
       texto: 'Estimar condición corporal y estado de rumen por animal.',
       accion: 'No está implementado. Hoy no lo ofrecemos.' },
     { nombre: 'Planes y precios', estado: '', palabras: ['precio', 'costo', 'cuesta', 'planes', 'mensual', 'usd', 'vale'],
-      texto: 'Panel AgroVision: 14 días gratis y después USD 50 por mes, con PC o sin PC. Plan Arranque: USD 120 por mes, con equipos desde unos USD 5.400 con IVA e instalación. Plan Campo completo: USD 250 por mes, con equipos e instalación entre USD 36.000 y 43.000. Vuelo de dron opcional desde USD 1.000 + IVA.',
+      texto: 'Los planes incluyen los componentes y la membresía mensual del software. El flete se define según la ubicación y se informa con la orden de trabajo. La instalación es un servicio aparte, si el campo la necesita. El vuelo de diagnóstico con dron es un servicio aparte. Te lo cotizamos si lo necesitás.',
       accion: 'Pedí la cotización final desde el chat y te la mandamos por WhatsApp.' }
   ];
 
@@ -1013,11 +1013,11 @@
     const tiene = respuestas['¿Qué tenés hoy en el campo?'] || '';
     const pierde = respuestas['¿Dónde sentís que perdés más plata?'] || '';
     const tamano = respuestas['¿Cuántas hectáreas y cuántas cabezas?'] || '';
-    const lineas = ['Para empezar te recomiendo el Panel AgroVision: 14 días gratis y después USD 50 por mes. Ya te muestra SARA, el clima y los datos de tu zona.'];
+    const lineas = ['Los planes incluyen los componentes y la membresía mensual del software. El flete se define según la ubicación y se informa con la orden de trabajo. La instalación es un servicio aparte, si el campo la necesita.'];
     if (/PC/.test(tiene)) lineas.push('Como tenés PC en el casco, el software corre ahí y suma el conteo de animales en video, sin Hongo.');
-    if (/Agua|Animales que faltan|Preñez/.test(pierde)) lineas.push('Si lo que más te preocupa es el cerco, el agua o los animales que faltan, el plan Arranque suma los sensores base y 5 collares de prueba: USD 120 por mes, con equipos desde unos USD 5.400 con IVA e instalación.');
-    if (/Más de 500/.test(tamano)) lineas.push('Por el tamaño de tu hacienda, también te puede servir el plan Campo completo: USD 250 por mes, con equipos e instalación a cotizar.');
-    lineas.push('Los precios son orientativos hasta la cotización final. Tocá Pedir cotización y armamos la propuesta por WhatsApp según tu campo.');
+    if (/Agua|Animales que faltan|Preñez/.test(pierde)) lineas.push('Si lo que más te preocupa es el cerco, el agua o los animales que faltan, el plan Arranque suma los sensores base y 5 collares de prueba. Te pasamos la cotización.');
+    if (/Más de 500/.test(tamano)) lineas.push('Por el tamaño de tu hacienda, también te puede servir el plan Campo completo. Te pasamos la cotización.');
+    lineas.push('Tocá Pedir cotización y armamos la propuesta por WhatsApp según tu campo.');
     return lineas.join('\n\n');
   }
 
