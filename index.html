@@ -897,6 +897,32 @@
     { pregunta: '¿Cuándo querés empezar?', opciones: ['Ya', 'Esta campaña', 'Estoy averiguando'] }
   ];
 
+  // Rubro según "¿A qué te dedicás?": agricultura, ganaderia o mixto (Mixto y Contratista quedan en mixto).
+  function rubro() {
+    const d = respuestas['¿A qué te dedicás?'];
+    if (d === 'Agricultura') return 'agricultura';
+    if (d === 'Cría' || d === 'Invernada' || d === 'Tambo') return 'ganaderia';
+    return 'mixto';
+  }
+
+  // Preguntas ajustadas al rubro. Mixto usa las preguntas base.
+  function preguntasActivas() {
+    const r = rubro();
+    return PREGUNTAS.map(p => {
+      if (r === 'agricultura' && p.pregunta === '¿Cuántas hectáreas y cuántas cabezas?') {
+        return { pregunta: '¿Cuántas hectáreas?', opciones: ['Menos de 100 ha', '100 a 500 ha', 'Más de 500 ha'] };
+      }
+      if (p.pregunta === '¿Dónde sentís que perdés más plata?') {
+        if (r === 'agricultura') return { ...p, opciones: ['Siembra y aplicación', 'Maquinaria y gasoil', 'Clima'] };
+        if (r === 'ganaderia') return { ...p, opciones: p.opciones.filter(o => o !== 'Siembra y aplicación') };
+      }
+      if (r === 'agricultura' && p.pregunta === '¿Qué tenés hoy en el campo?') {
+        return { ...p, opciones: p.opciones.filter(o => o !== 'Boyero' && o !== 'Caravanas electrónicas o bastón') };
+      }
+      return p;
+    });
+  }
+
   const TEMAS = ['Qué funciona hoy', 'Conteo de animales', 'Peso', 'Perímetro (IN / OUT)', 'Zonas y superficie', 'Suelo y pasto', 'Caravanas SENASA', 'Lluvia y boyero', 'Alertas de salud', 'Planes y precios'];
   const FALLBACK = 'Eso no lo tengo validado, así que no te lo voy a inventar. Tocá una pregunta rápida o escribí algo como conteo, peso, perímetro, zonas, suelo, SENASA, lluvia, alertas o precio.';
 
@@ -976,8 +1002,8 @@
   }
 
   function formatoFuncion(f) {
-    const estado = f.estado ? 'Estado: ' + f.estado + '. ' : '';
-    return f.nombre + '\n' + estado + f.texto + '\nCómo lo resolvés: ' + f.accion;
+    const estado = f.estado ? f.estado + '. ' : '';
+    return f.nombre + '\n' + estado + f.texto + '\n' + f.accion;
   }
 
   function resumenPorEstado() {
@@ -986,6 +1012,114 @@
       return items.length ? e + ':\n' + items.join('\n') : '';
     }).filter(Boolean);
     return 'Esto es lo que tenemos, ordenado por estado:\n\n' + bloques.join('\n\n') + '\n\nPreguntame por cualquiera para ver cómo lo resolvés.';
+  }
+
+  // Intenciones con sinónimos. Se comparan normalizadas (sin tildes, puntuación ni palabras vacías).
+  // El orden define la prioridad: cotizar, después precio y por último ofrecer.
+  const PALABRAS_VACIAS = ['que', 'el', 'la', 'de', 'un', 'una', 'me', 'te', 'por'];
+  const INTENCIONES = [
+    { id: 'cotizar', frases: ['cotizacion', 'cotizar', 'presupuesto', 'pedir cotizacion', 'quiero comprar', 'dame cotizacion', 'pedir presupuesto'] },
+    { id: 'precio', frases: ['precio', 'precios', 'cuanto vale', 'cuanto sale', 'cuanto cuesta', 'costo', 'plata', 'planes', 'vale', 'cuanto es', 'valor', 'tarifa'] },
+    { id: 'ofrecer', frases: ['que ofrecen', 'que hacen', 'que tienen', 'que incluye', 'servicios', 'productos', 'funciones', 'que ofrece'] }
+  ];
+  // Palabras sueltas de las intenciones, normalizadas. Sirven para no confundirlas con funciones.
+  const CLAVES_INTENCION = [...new Set(INTENCIONES.flatMap(i => i.frases.flatMap(f => normalizarConsulta(f).split(' '))))];
+
+  // Quita tildes, puntuación y palabras vacías. "cuanto" se conserva.
+  function normalizarConsulta(texto) {
+    return norm(texto).replace(/[^a-z0-9\s]/g, ' ').split(/\s+/)
+      .filter(w => w && !PALABRAS_VACIAS.includes(w)).join(' ');
+  }
+
+  // Similitud entre 0 y 1, calculada con distancia de Levenshtein dentro de la misma función.
+  function similitud(a, b) {
+    const m = a.length, n = b.length;
+    if (!m || !n) return 0;
+    let fila = Array.from({ length: n + 1 }, (_, j) => j);
+    for (let i = 1; i <= m; i++) {
+      const nueva = [i];
+      for (let j = 1; j <= n; j++) {
+        const costo = a[i - 1] === b[j - 1] ? 0 : 1;
+        nueva[j] = Math.min(fila[j] + 1, nueva[j - 1] + 1, fila[j - 1] + costo);
+      }
+      fila = nueva;
+    }
+    return 1 - fila[n] / Math.max(m, n);
+  }
+
+  // Detecta la intención de la consulta. Una palabra con errata se corrige si se parece 0,8 o más a una palabra clave.
+  // Con soloFrases: sin corrección de erratas y solo cuentan frases de 2 o más palabras.
+  function detectarIntencion(texto, soloFrases = false) {
+    const claves = CLAVES_INTENCION;
+    const palabras = normalizarConsulta(texto).split(' ').filter(Boolean).map(w => {
+      if (soloFrases || claves.includes(w) || w.length < 4) return w;
+      let mejor = w, mejorSim = 0;
+      claves.forEach(c => { const s = similitud(w, c); if (s > mejorSim) { mejorSim = s; mejor = c; } });
+      return mejorSim >= 0.8 ? mejor : w;
+    });
+    const dicho = ' ' + palabras.join(' ') + ' ';
+    const hit = INTENCIONES.find(i => i.frases.some(f => {
+      if (soloFrases && f.split(' ').length < 2) return false;
+      return dicho.includes(' ' + normalizarConsulta(f) + ' ');
+    }));
+    return hit ? hit.id : null;
+  }
+
+  // Como buscarFuncion, pero ignora las palabras que son de intención.
+  function buscarFuncionSinIntencion(texto) {
+    const t = norm(texto);
+    if (!t.trim()) return null;
+    let mejor = null, puntaje = 0;
+    FUNCIONES.forEach(f => {
+      const p = f.palabras.filter(w => !CLAVES_INTENCION.includes(norm(w)))
+        .reduce((n, w) => n + (t.includes(norm(w)) ? 1 : 0), 0);
+      if (p > puntaje) { puntaje = p; mejor = f; }
+    });
+    return mejor;
+  }
+
+  // Si hay una función específica, responde con ella. Si no, responde la intención de precio u ofrecer. Devuelve true si respondió.
+  function responderConsulta(intencion, f) {
+    if (f) { burbuja('bot', formatoFuncion(f)); sugerir(f); return true; }
+    if (intencion === 'precio') {
+      const p = FUNCIONES.find(x => x.nombre === 'Planes y precios');
+      burbuja('bot', formatoFuncion(p));
+      sugerir(p);
+      return true;
+    }
+    if (intencion === 'ofrecer') { burbuja('bot', listaDisponibles()); return true; }
+    return false;
+  }
+
+  // Nombre: solo letras (con acentos) y espacios, de 2 a 30 caracteres.
+  function nombreValido(t) {
+    return /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+( [A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)*$/.test(t) && t.length >= 2 && t.length <= 30;
+  }
+
+  // Lista generada desde FUNCIONES: solo las de estado "Disponible".
+  function listaDisponibles() {
+    const items = FUNCIONES.filter(f => f.estado === 'Disponible').map(f => '· ' + f.nombre);
+    return 'Hoy tenemos disponible:\n\n' + items.join('\n') + '\n\nPreguntame por cualquiera para ver cómo lo resolvés.';
+  }
+
+  // Sin coincidencia: hasta 3 temas cuyas palabras se parecen a las de la consulta.
+  function temasCercanos(texto) {
+    const palabras = normalizarConsulta(texto).split(' ').filter(w => w.length >= 3);
+    return TEMAS.map(tema => {
+      const tp = normalizarConsulta(tema).split(' ').filter(w => w.length >= 3);
+      const puntaje = Math.max(0, ...palabras.map(p => Math.max(0, ...tp.map(t => similitud(p, t)))));
+      return { tema, puntaje };
+    }).filter(c => c.puntaje >= 0.6).sort((a, b) => b.puntaje - a.puntaje).slice(0, 3).map(c => c.tema);
+  }
+
+  function mostrarTemas(lista) {
+    limpiarSugerencias();
+    if (!lista.length) return;
+    const fila = document.createElement('div');
+    fila.className = 'vs-sugeridas';
+    lista.forEach(tema => fila.appendChild(chip(tema, 'tema', () => responderTema(tema))));
+    chatInner.appendChild(fila);
+    scrollFinal();
   }
 
   // Busca la función con más palabras coincidentes. Sin coincidencias, devuelve null.
@@ -1012,11 +1146,11 @@
   function recomendacion() {
     const tiene = respuestas['¿Qué tenés hoy en el campo?'] || '';
     const pierde = respuestas['¿Dónde sentís que perdés más plata?'] || '';
-    const tamano = respuestas['¿Cuántas hectáreas y cuántas cabezas?'] || '';
+    const tamano = respuestas['¿Cuántas hectáreas y cuántas cabezas?'] || respuestas['¿Cuántas hectáreas?'] || '';
     const lineas = ['Los planes incluyen los componentes y la membresía mensual del software. El flete se define según la ubicación y se informa con la orden de trabajo. La instalación es un servicio aparte, si el campo la necesita.'];
     if (/PC/.test(tiene)) lineas.push('Como tenés PC en el casco, el software corre ahí y suma el conteo de animales en video, sin Hongo.');
     if (/Agua|Animales que faltan|Preñez/.test(pierde)) lineas.push('Si lo que más te preocupa es el cerco, el agua o los animales que faltan, el plan Arranque suma los sensores base y 5 collares de prueba. Te pasamos la cotización.');
-    if (/Más de 500/.test(tamano)) lineas.push('Por el tamaño de tu hacienda, también te puede servir el plan Campo completo. Te pasamos la cotización.');
+    if (rubro() !== 'agricultura' && /Más de 500/.test(tamano)) lineas.push('Por el tamaño de tu hacienda, también te puede servir el plan Campo completo. Te pasamos la cotización.');
     lineas.push('Tocá Pedir cotización y armamos la propuesta por WhatsApp según tu campo.');
     return lineas.join('\n\n');
   }
@@ -1030,7 +1164,8 @@
 
   function preguntarSiguiente() {
     chips.textContent = '';
-    if (paso >= PREGUNTAS.length) {
+    const preguntas = preguntasActivas();
+    if (paso >= preguntas.length) {
       guia.classList.remove('on');
       etapa = 'resumen';
       burbuja('bot', recomendacion());
@@ -1041,9 +1176,9 @@
       guia.classList.add('on');
       return;
     }
-    const p = PREGUNTAS[paso];
+    const p = preguntas[paso];
     burbuja('bot', p.pregunta);
-    guiaTitulo.textContent = 'Pregunta ' + (paso + 1) + ' de ' + PREGUNTAS.length + ' · podés saltearla';
+    guiaTitulo.textContent = 'Pregunta ' + (paso + 1) + ' de ' + preguntas.length + ' · podés saltearla';
     if (p.multiple) {
       // Selección múltiple: "Nada de esto" es excluyente y se confirma con el botón.
       const elegidos = new Set();
@@ -1080,7 +1215,10 @@
 
   function registrar(texto) {
     burbuja('user', texto);
-    respuestas[PREGUNTAS[paso].pregunta] = texto;
+    const pregunta = preguntasActivas()[paso].pregunta;
+    respuestas[pregunta] = texto;
+    // En agricultura no se pregunta cabezas: se guarda 0.
+    if (pregunta === '¿Cuántas hectáreas?') respuestas['Cabezas'] = '0';
     paso++;
     preguntarSiguiente();
   }
@@ -1115,15 +1253,42 @@
     ajustarAltura();
     limpiarSugerencias();
 
+    const intencion = detectarIntencion(limpio);
+    const f = buscarFuncionSinIntencion(limpio);
+    const intencionFuerte = detectarIntencion(limpio, true);
+
+    // Si el chat espera un dato, una consulta se responde y la pregunta pendiente se repite sin guardar el texto.
     if (etapa === 'nombre') {
-      nombre = limpio.slice(0, 40);
+      if (intencionFuerte) {
+        burbuja('user', limpio);
+        if (intencionFuerte === 'cotizar') { iniciarCotizacion(); return; }
+        responderConsulta(intencionFuerte, f);
+        burbuja('bot', 'Para armarte la cotización, decime tu nombre.');
+        return;
+      }
       burbuja('user', limpio);
+      if (!nombreValido(limpio)) {
+        burbuja('bot', 'Decime tu nombre con 2 a 30 letras, sin números ni símbolos.');
+        return;
+      }
+      nombre = limpio;
       empezarPreguntas();
       return;
     }
 
-    if (etapa === 'preguntas' && paso < PREGUNTAS.length) {
-      // Texto libre contesta la pregunta actual. Los temas de arriba siguen siendo consultas.
+    const preguntas = preguntasActivas();
+    if (etapa === 'preguntas' && paso < preguntas.length) {
+      // Si el texto es una de las opciones de la pregunta actual, se guarda como respuesta.
+      const opcion = preguntas[paso].opciones.find(op => !op.startsWith('Escribir') && normalizarConsulta(op) === normalizarConsulta(limpio));
+      if (opcion) { registrar(opcion); return; }
+      if (intencionFuerte) {
+        burbuja('user', limpio);
+        if (intencionFuerte === 'cotizar') burbuja('bot', 'Seguimos con estas preguntas. Cuando termines, te armo la cotización.');
+        else responderConsulta(intencionFuerte, f);
+        preguntarSiguiente();
+        return;
+      }
+      // Texto libre contesta la pregunta actual.
       registrar(limpio);
       return;
     }
@@ -1138,9 +1303,12 @@
       burbuja('bot', 'De nada. ¿Querés ver otra función o preguntar por precios?');
       return;
     }
+    if (intencion === 'cotizar') { iniciarCotizacion(); return; }
+    if (responderConsulta(intencion, f)) return;
     const r = responder(limpio);
-    burbuja(r ? 'bot' : 'error', r || FALLBACK);
-    sugerir(buscarFuncion(limpio));
+    if (r) { burbuja('bot', r); sugerir(buscarFuncion(limpio)); return; }
+    burbuja('error', FALLBACK);
+    mostrarTemas(temasCercanos(limpio));
   }
 
   function ajustarAltura() {
@@ -1186,7 +1354,8 @@
     scrollFinal();
   }
 
-  cotizar.addEventListener('click', () => {
+  // Flujo de "Pedir cotización": lo usan el botón y la intención "cotizar" del chat.
+  function iniciarCotizacion() {
     if (etapa === 'cotizacion' || etapa === 'resumen') { abrirCotizacion(); return; }
     if (etapa === 'preguntas') return;
     if (!nombre) {
@@ -1196,7 +1365,9 @@
       return;
     }
     empezarPreguntas();
-  });
+  }
+
+  cotizar.addEventListener('click', iniciarCotizacion);
 
   // Datos mínimos antes de enviar: ubicación, hectáreas, cabezas, WhatsApp (6+ caracteres) y consentimiento.
   const leadUbic = $('vs-ubicacion'), leadHa = $('vs-hectareas'), leadCab = $('vs-cabezas');
@@ -1205,12 +1376,17 @@
     const falta = [];
     if (!leadUbic.value.trim()) falta.push('ubicación');
     if (!(Number(leadHa.value) > 0)) falta.push('hectáreas');
-    if (leadCab.value === '' || Number(leadCab.value) < 0) falta.push('cabezas');
+    if (rubro() !== 'agricultura' && (leadCab.value === '' || Number(leadCab.value) < 0)) falta.push('cabezas');
     if (leadWsp.value.trim().length < 6) falta.push('WhatsApp (mínimo 6 caracteres)');
     if (!leadConsent.checked) falta.push('consentimiento');
     return falta;
   }
   function validarLead() {
+    // En agricultura no se pide cabezas: el campo se oculta y se envía 0.
+    const agro = rubro() === 'agricultura';
+    const campoCab = leadCab.closest('.vs-campo') || leadCab.parentElement;
+    if (campoCab) campoCab.style.display = agro ? 'none' : '';
+    leadCab.required = !agro;
     const falta = faltantesLead();
     leadEnviar.disabled = falta.length > 0;
     leadMsg.className = 'vs-lead-msg';
@@ -1232,7 +1408,7 @@
     }
     respuestas['¿Dónde está tu campo?'] = leadUbic.value.trim();
     respuestas['Hectáreas'] = leadHa.value;
-    respuestas['Cabezas'] = leadCab.value;
+    respuestas['Cabezas'] = rubro() === 'agricultura' ? '0' : leadCab.value;
     const body = { nombre: nombre, whatsapp: whatsapp, ubicacion: respuestas['¿Dónde está tu campo?'] || '', respuestas: respuestas, consentimiento: true, origen: 'web-sara' };
     leadMsg.textContent = 'Enviando...';
     try {
