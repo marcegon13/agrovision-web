@@ -687,6 +687,7 @@
   #sara-duo .vs-pie { margin-top: -8px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
   #sara-duo .vs-btn-accion { padding: 11px 18px; border-radius: 999px; border: none; background: var(--blue); color: #fff; font-weight: 600; font-size: .9rem; cursor: pointer; }
   #sara-duo .vs-btn-accion:hover { background: #3a80ff; }
+  #sara-duo .vs-btn-accion:disabled { opacity: .45; cursor: not-allowed; }
   #sara-duo .vs-btn-accion.secundario { background: transparent; border: 1px solid rgba(255,255,255,.2); }
   #sara-duo .vs-btn-accion.secundario:hover { border-color: rgba(77,159,255,.6); background: transparent; }
   #sara-duo .vs-lead { width: 100%; max-width: 480px; margin: 0 auto; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 16px; background: rgba(255,255,255,.04); }
@@ -787,14 +788,26 @@
 
     <form class="vs-lead duo-col2" id="vs-lead" hidden>
       <div class="vs-campo">
+        <label for="vs-ubicacion">Ubicación (localidad o zona)</label>
+        <input id="vs-ubicacion" name="ubicacion" maxlength="80" placeholder="Ej: Vicente Casares, Buenos Aires" required>
+      </div>
+      <div class="vs-campo">
+        <label for="vs-hectareas">Hectáreas</label>
+        <input id="vs-hectareas" name="hectareas" type="number" min="1" inputmode="numeric" required>
+      </div>
+      <div class="vs-campo">
+        <label for="vs-cabezas">Cabezas</label>
+        <input id="vs-cabezas" name="cabezas" type="number" min="0" inputmode="numeric" required>
+      </div>
+      <div class="vs-campo">
         <label for="vs-whatsapp">WhatsApp</label>
         <input id="vs-whatsapp" name="whatsapp" maxlength="30" inputmode="tel" placeholder="Con código de área" required>
       </div>
       <label class="vs-consent">
         <input type="checkbox" id="vs-consentimiento" required>
-        <span>Acepto que AgroVision me escriba por WhatsApp sobre esta consulta y guarde mis respuestas.</span>
+        <span>Aceptás que AgroVision te contacte por WhatsApp para armar una cotización aproximada. Usamos tu ubicación, hectáreas y cabezas solo para eso.</span>
       </label>
-      <button type="submit" class="vs-btn-accion">Enviar</button>
+      <button type="submit" class="vs-btn-accion" id="vs-enviar-lead" disabled>Enviar</button>
       <p class="vs-lead-msg" id="vs-lead-msg" role="status"></p>
     </form>
   </div>
@@ -1090,6 +1103,7 @@
     }
     cotizar.hidden = true;
     lead.hidden = false;
+    validarLead();
     burbuja('bot', 'Dejá tu WhatsApp y te escribimos con la cotización. Si preferís hablar con una persona, también te atendemos por ahí.');
     $('vs-whatsapp').focus();
   }
@@ -1184,8 +1198,30 @@
     empezarPreguntas();
   });
 
+  // Datos mínimos antes de enviar: ubicación, hectáreas, cabezas, WhatsApp (6+ caracteres) y consentimiento.
+  const leadUbic = $('vs-ubicacion'), leadHa = $('vs-hectareas'), leadCab = $('vs-cabezas');
+  const leadWsp = $('vs-whatsapp'), leadConsent = $('vs-consentimiento'), leadEnviar = $('vs-enviar-lead');
+  function faltantesLead() {
+    const falta = [];
+    if (!leadUbic.value.trim()) falta.push('ubicación');
+    if (!(Number(leadHa.value) > 0)) falta.push('hectáreas');
+    if (leadCab.value === '' || Number(leadCab.value) < 0) falta.push('cabezas');
+    if (leadWsp.value.trim().length < 6) falta.push('WhatsApp (mínimo 6 caracteres)');
+    if (!leadConsent.checked) falta.push('consentimiento');
+    return falta;
+  }
+  function validarLead() {
+    const falta = faltantesLead();
+    leadEnviar.disabled = falta.length > 0;
+    leadMsg.className = 'vs-lead-msg';
+    leadMsg.textContent = falta.length ? 'Falta completar: ' + falta.join(', ') + '.' : '';
+  }
+  lead.addEventListener('input', validarLead);
+  lead.addEventListener('change', validarLead);
+
   lead.addEventListener('submit', async e => {
     e.preventDefault();
+    if (faltantesLead().length) { validarLead(); return; }
     const whatsapp = $('vs-whatsapp').value.trim();
     const consentimiento = $('vs-consentimiento').checked;
     leadMsg.className = 'vs-lead-msg';
@@ -1194,6 +1230,9 @@
       leadMsg.textContent = 'Necesitamos tu consentimiento para guardar tus datos.';
       return;
     }
+    respuestas['¿Dónde está tu campo?'] = leadUbic.value.trim();
+    respuestas['Hectáreas'] = leadHa.value;
+    respuestas['Cabezas'] = leadCab.value;
     const body = { nombre: nombre, whatsapp: whatsapp, ubicacion: respuestas['¿Dónde está tu campo?'] || '', respuestas: respuestas, consentimiento: true, origen: 'web-sara' };
     leadMsg.textContent = 'Enviando...';
     try {
@@ -1201,6 +1240,7 @@
       if (!r.ok) throw new Error('status ' + r.status);
       leadMsg.textContent = 'Gracias, ' + nombre + '. Te escribimos por WhatsApp.';
       lead.reset();
+      leadEnviar.disabled = true;
       etapa = 'resumen';
     } catch (_) {
       leadMsg.className = 'vs-lead-msg error';
