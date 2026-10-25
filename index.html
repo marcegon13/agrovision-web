@@ -1059,7 +1059,7 @@
     });
     const dicho = ' ' + palabras.join(' ') + ' ';
     const hit = INTENCIONES.find(i => i.frases.some(f => {
-      if (soloFrases && f.split(' ').length < 2) return false;
+      if (soloFrases && f.split(' ').length < 2 && i.id !== 'cotizar') return false;
       return dicho.includes(' ' + normalizarConsulta(f) + ' ');
     }));
     return hit ? hit.id : null;
@@ -1253,7 +1253,6 @@
     ajustarAltura();
     limpiarSugerencias();
 
-    const intencion = detectarIntencion(limpio);
     const f = buscarFuncionSinIntencion(limpio);
     const intencionFuerte = detectarIntencion(limpio, true);
 
@@ -1303,8 +1302,8 @@
       burbuja('bot', 'De nada. ¿Querés ver otra función o preguntar por precios?');
       return;
     }
-    if (intencion === 'cotizar') { iniciarCotizacion(); return; }
-    if (responderConsulta(intencion, f)) return;
+    if (intencionFuerte === 'cotizar') { iniciarCotizacion(); return; }
+    if (responderConsulta(intencionFuerte, f)) return;
     const r = responder(limpio);
     if (r) { burbuja('bot', r); sugerir(buscarFuncion(limpio)); return; }
     burbuja('error', FALLBACK);
