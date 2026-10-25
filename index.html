@@ -683,6 +683,10 @@
   #sara-duo #vs-enviar { flex: 0 0 40px; width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--blue); display: flex; align-items: center; justify-content: center; cursor: pointer; }
   #sara-duo #vs-enviar:hover { background: #3a80ff; }
   #sara-duo #vs-enviar svg { width: 18px; height: 18px; }
+  #sara-duo .vs-mic { flex: 0 0 44px; width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,.14); background: transparent; color: rgba(240,244,255,.7); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  #sara-duo .vs-mic:hover { border-color: rgba(77,159,255,.6); color: var(--blue-lt); }
+  #sara-duo .vs-mic.escuchando { background: var(--blue); border-color: var(--blue); color: #fff; animation: vsPulso 1.2s ease-in-out infinite; }
+  #sara-duo .vs-mic svg { width: 18px; height: 18px; }
 
   #sara-duo .vs-pie { margin-top: -8px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
   #sara-duo .vs-btn-accion { padding: 11px 18px; border-radius: 999px; border: none; background: var(--blue); color: #fff; font-weight: 600; font-size: .9rem; cursor: pointer; }
@@ -772,6 +776,13 @@
       <footer class="vs-composer">
         <form class="vs-composer-inner" id="vs-form">
           <textarea id="vs-entrada" rows="1" placeholder="Escribí tu pregunta…" aria-label="Escribí tu pregunta para SARA"></textarea>
+          <button type="button" id="vs-mic" class="vs-mic" aria-label="Preguntar por voz" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="9" y="3" width="6" height="11" rx="3"/>
+              <path d="M5 11a7 7 0 0 0 14 0"/>
+              <line x1="12" y1="18" x2="12" y2="22"/>
+            </svg>
+          </button>
           <button type="submit" id="vs-enviar" aria-label="Enviar">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="5" y1="12" x2="19" y2="12"/>
@@ -1316,6 +1327,47 @@
   }
 
   form.addEventListener('submit', e => { e.preventDefault(); procesar(entrada.value); });
+  // Preguntar por voz con la Web Speech API. Sin soporte, el botón se oculta. No se guarda ni envía audio.
+  const micBoton = $('vs-mic');
+  const Reconocimiento = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const MIC_ERROR = 'No pude usar el micrófono. Escribí tu pregunta o revisá el permiso del navegador.';
+  if (!Reconocimiento) {
+    micBoton.style.display = 'none';
+  } else {
+    const reco = new Reconocimiento();
+    reco.lang = 'es-AR';
+    reco.interimResults = false;
+    reco.maxAlternatives = 1;
+    const placeholderOriginal = entrada.placeholder;
+    let escuchando = false;
+    function fijarEscucha(on) {
+      escuchando = on;
+      micBoton.classList.toggle('escuchando', on);
+      micBoton.setAttribute('aria-pressed', String(on));
+      entrada.placeholder = on ? 'Escuchando...' : placeholderOriginal;
+    }
+    reco.onresult = e => {
+      const texto = e.results[0][0].transcript;
+      entrada.value = texto;
+      procesar(entrada.value);
+    };
+    reco.onerror = e => {
+      fijarEscucha(false);
+      if (e.error === 'no-speech' || e.error === 'aborted') return;
+      burbuja('bot', MIC_ERROR);
+    };
+    reco.onend = () => fijarEscucha(false);
+    micBoton.addEventListener('click', () => {
+      if (escuchando) { reco.stop(); return; }
+      try {
+        reco.start();
+        fijarEscucha(true);
+      } catch (_) {
+        burbuja('bot', MIC_ERROR);
+      }
+    });
+  }
+
   entrada.addEventListener('input', ajustarAltura);
   entrada.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); procesar(entrada.value); }
