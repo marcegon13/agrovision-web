@@ -586,13 +586,17 @@
 <body>
 
 <div class="aviso-banner">
-  <p>Quiero que me avisen</p>
-  <button type="button" class="aviso-btn" id="aviso-abrir">Avisame</button>
+  <div>
+    <p>La tecnología argentina está llegando al campo</p>
+    <p class="aviso-bajada">Anotate en la lista de espera de SARA. Los primeros en sumarse tienen prioridad de instalación.</p>
+  </div>
+  <button type="button" class="aviso-btn" id="aviso-abrir">Quiero anotarme</button>
 </div>
 
 <div class="aviso-modal" id="aviso-modal" hidden role="dialog" aria-modal="true" aria-labelledby="aviso-titulo">
   <div class="aviso-caja">
-    <h3 id="aviso-titulo">Quiero que me avisen</h3>
+    <h3 id="aviso-titulo">La tecnología argentina está llegando al campo</h3>
+    <p class="aviso-bajada">Anotate en la lista de espera de SARA. Los primeros en sumarse tienen prioridad de instalación.</p>
     <form id="aviso-form">
       <label>Nombre
         <input id="aviso-nombre" maxlength="40" required>
@@ -600,9 +604,25 @@
       <label>WhatsApp
         <input id="aviso-wsp" maxlength="30" inputmode="tel" required>
       </label>
+      <label>Dónde está tu campo
+        <input id="aviso-campo" maxlength="60" placeholder="Partido y provincia" required>
+      </label>
+      <label>Qué hacés
+        <select id="aviso-que-haces" required>
+          <option value="">Elegí una opción</option>
+          <option>Cría</option>
+          <option>Invernada</option>
+          <option>Tambo</option>
+          <option>Agricultura</option>
+          <option>Mixto</option>
+          <option>Contratista</option>
+          <option>Asesor (agrónomo o veterinario)</option>
+          <option>Otro</option>
+        </select>
+      </label>
       <label class="aviso-consent">
         <input type="checkbox" id="aviso-consent">
-        <span>Acepto que SARA use mis datos para avisarme cuando esté lista y para contactarme sobre el proyecto. Puedo pedir que los borren cuando quiera.</span>
+        <span>Acepto que AgroVision use estos datos para contactarme y para estudios de mercado anónimos.</span>
       </label>
       <button type="submit" class="aviso-btn" id="aviso-enviar">Enviar</button>
       <p class="aviso-msg" id="aviso-msg" role="status"></p>
@@ -765,6 +785,8 @@
   }
   .aviso-banner { margin-top: 60px; background: var(--navy-2); color: #f0f4ff; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; }
   .aviso-banner p { font-family: 'Rajdhani', sans-serif; font-size: 1.25rem; font-weight: 700; }
+  .aviso-banner .aviso-bajada { font-family: 'Inter', system-ui, sans-serif; font-size: .9rem; font-weight: 400; color: rgba(240,244,255,.7); margin-top: 4px; }
+  .aviso-bajada { font-family: 'Inter', system-ui, sans-serif; font-size: .9rem; font-weight: 400; color: rgba(240,244,255,.7); margin-top: 4px; }
   .aviso-btn { padding: 11px 18px; border-radius: 999px; border: none; background: var(--blue); color: #fff; font-weight: 600; font-size: .9rem; cursor: pointer; }
   .aviso-btn:hover { background: #3a80ff; }
   .aviso-modal { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; padding: 16px; overflow-y: auto; }
@@ -772,7 +794,7 @@
   .aviso-caja { width: 100%; max-width: 420px; margin: auto; background: var(--navy); color: #f0f4ff; border: 1px solid rgba(255,255,255,.12); border-radius: 14px; padding: 20px; }
   .aviso-caja h3 { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; margin-bottom: 12px; }
   .aviso-caja label { display: flex; flex-direction: column; gap: 6px; font-size: .85rem; margin-bottom: 12px; color: rgba(240,244,255,.7); }
-  .aviso-caja input:not([type="checkbox"]) { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 10px 12px; color: #f0f4ff; }
+  .aviso-caja input:not([type="checkbox"]), .aviso-caja select { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 10px 12px; color: #f0f4ff; }
   .aviso-caja .aviso-consent { flex-direction: row; gap: 10px; line-height: 1.45; }
   .aviso-caja #aviso-enviar { margin-top: 4px; }
   .aviso-msg { margin: 10px 0 0; font-size: .9rem; min-height: 1.2em; }
@@ -1539,10 +1561,10 @@
   burbuja('bot', 'Hola, soy SARA. Te cuento sólo lo que está probado.');
   // Banner "Quiero que me avisen": formulario rápido en ventana modal.
   const avisoModal = $('aviso-modal'), avisoForm = $('aviso-form'), avisoMsg = $('aviso-msg');
-  const valorUtm = (new URLSearchParams(location.search).get('utm_content') || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 20);
+  const valorUtm = (new URLSearchParams(location.search).get('o') || new URLSearchParams(location.search).get('utm_content') || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 20);
   const origenAviso = valorUtm ? 'web-banner-' + valorUtm : 'web-banner';
-  $('aviso-abrir').addEventListener('click', () => { avisoModal.hidden = false; $('aviso-nombre').focus(); });
-  $('aviso-cerrar').addEventListener('click', () => { avisoModal.hidden = true; });
+  $('aviso-abrir').addEventListener('click', () => { avisoModal.hidden = false; $('aviso-enviar').disabled = false; $('aviso-nombre').focus(); });
+  $('aviso-cerrar').addEventListener('click', () => { avisoModal.hidden = true; $('aviso-enviar').disabled = false; });
   avisoForm.addEventListener('focusin', e => {
     if (e.target.matches('input')) e.target.scrollIntoView({ block: 'center' });
   });
@@ -1550,11 +1572,13 @@
     e.preventDefault();
     const nombreAviso = $('aviso-nombre').value.trim();
     const wspAviso = $('aviso-wsp').value.trim();
+    const campoAviso = $('aviso-campo').value.trim();
+    const queHacesAviso = $('aviso-que-haces').value;
     avisoMsg.className = 'aviso-msg';
     avisoMsg.textContent = '';
-    if (!nombreAviso || !wspAviso) {
+    if (!nombreAviso || !wspAviso || !campoAviso || !queHacesAviso) {
       avisoMsg.className = 'aviso-msg error';
-      avisoMsg.textContent = 'Completá tu nombre y tu WhatsApp.';
+      avisoMsg.textContent = 'Completá todos los campos para anotarte.';
       return;
     }
     if (!$('aviso-consent').checked) {
@@ -1562,17 +1586,24 @@
       avisoMsg.textContent = 'Necesitamos tu consentimiento para guardar tus datos.';
       return;
     }
-    const body = { nombre: nombreAviso, whatsapp: wspAviso, ubicacion: '', respuestas: {}, consentimiento: true, origen: origenAviso };
+    const body = { nombre: nombreAviso, whatsapp: wspAviso, ubicacion: campoAviso, respuestas: { que_haces: queHacesAviso }, consentimiento: true, origen: origenAviso };
     const btnAviso = $('aviso-enviar');
     btnAviso.disabled = true;
     btnAviso.textContent = 'Enviando...';
     avisoMsg.textContent = 'Enviando...';
+    let anotado = false;
     try {
       const r = await fetch(API_LEAD, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       if (!r.ok) throw new Error('status ' + r.status);
-      avisoMsg.textContent = 'Listo, te avisamos.';
+      const datos = await r.json().catch(() => ({}));
       avisoForm.reset();
-      setTimeout(() => { avisoModal.hidden = true; avisoMsg.textContent = ''; }, 1500);
+      if (Number.isInteger(datos.numero)) {
+        avisoMsg.textContent = 'Listo, sos el anotado n.º ' + datos.numero + '.';
+        anotado = true;
+      } else {
+        avisoMsg.textContent = 'Listo, te avisamos.';
+        setTimeout(() => { avisoModal.hidden = true; avisoMsg.textContent = ''; }, 1500);
+      }
     } catch (_) {
       avisoMsg.className = 'aviso-msg error';
       avisoMsg.textContent = 'No pudimos guardar tus datos por ahora.';
@@ -1585,7 +1616,7 @@
         avisoMsg.appendChild(a);
       }
     } finally {
-      btnAviso.disabled = false;
+      btnAviso.disabled = anotado;
       btnAviso.textContent = 'Enviar';
     }
   });
