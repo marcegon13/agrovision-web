@@ -1539,6 +1539,8 @@
   burbuja('bot', 'Hola, soy SARA. Te cuento sólo lo que está probado.');
   // Banner "Quiero que me avisen": formulario rápido en ventana modal.
   const avisoModal = $('aviso-modal'), avisoForm = $('aviso-form'), avisoMsg = $('aviso-msg');
+  const valorUtm = (new URLSearchParams(location.search).get('utm_content') || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 20);
+  const origenAviso = valorUtm ? 'web-banner-' + valorUtm : 'web-banner';
   $('aviso-abrir').addEventListener('click', () => { avisoModal.hidden = false; $('aviso-nombre').focus(); });
   $('aviso-cerrar').addEventListener('click', () => { avisoModal.hidden = true; });
   avisoForm.addEventListener('focusin', e => {
@@ -1560,7 +1562,7 @@
       avisoMsg.textContent = 'Necesitamos tu consentimiento para guardar tus datos.';
       return;
     }
-    const body = { nombre: nombreAviso, whatsapp: wspAviso, ubicacion: '', respuestas: {}, consentimiento: true, origen: 'web-banner' };
+    const body = { nombre: nombreAviso, whatsapp: wspAviso, ubicacion: '', respuestas: {}, consentimiento: true, origen: origenAviso };
     const btnAviso = $('aviso-enviar');
     btnAviso.disabled = true;
     btnAviso.textContent = 'Enviando...';
