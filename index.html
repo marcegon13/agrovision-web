@@ -767,9 +767,9 @@
   .aviso-banner p { font-family: 'Rajdhani', sans-serif; font-size: 1.25rem; font-weight: 700; }
   .aviso-btn { padding: 11px 18px; border-radius: 999px; border: none; background: var(--blue); color: #fff; font-weight: 600; font-size: .9rem; cursor: pointer; }
   .aviso-btn:hover { background: #3a80ff; }
-  .aviso-modal { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .aviso-modal { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; padding: 16px; overflow-y: auto; }
   .aviso-modal[hidden] { display: none; }
-  .aviso-caja { width: 100%; max-width: 420px; background: var(--navy); color: #f0f4ff; border: 1px solid rgba(255,255,255,.12); border-radius: 14px; padding: 20px; }
+  .aviso-caja { width: 100%; max-width: 420px; margin: auto; background: var(--navy); color: #f0f4ff; border: 1px solid rgba(255,255,255,.12); border-radius: 14px; padding: 20px; }
   .aviso-caja h3 { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; margin-bottom: 12px; }
   .aviso-caja label { display: flex; flex-direction: column; gap: 6px; font-size: .85rem; margin-bottom: 12px; color: rgba(240,244,255,.7); }
   .aviso-caja input:not([type="checkbox"]) { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 10px 12px; color: #f0f4ff; }
@@ -1541,6 +1541,9 @@
   const avisoModal = $('aviso-modal'), avisoForm = $('aviso-form'), avisoMsg = $('aviso-msg');
   $('aviso-abrir').addEventListener('click', () => { avisoModal.hidden = false; $('aviso-nombre').focus(); });
   $('aviso-cerrar').addEventListener('click', () => { avisoModal.hidden = true; });
+  avisoForm.addEventListener('focusin', e => {
+    if (e.target.matches('input')) e.target.scrollIntoView({ block: 'center' });
+  });
   avisoForm.addEventListener('submit', async e => {
     e.preventDefault();
     const nombreAviso = $('aviso-nombre').value.trim();
