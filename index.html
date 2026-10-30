@@ -585,6 +585,32 @@
 </head>
 <body>
 
+<div class="aviso-banner">
+  <p>Quiero que me avisen</p>
+  <button type="button" class="aviso-btn" id="aviso-abrir">Avisame</button>
+</div>
+
+<div class="aviso-modal" id="aviso-modal" hidden role="dialog" aria-modal="true" aria-labelledby="aviso-titulo">
+  <div class="aviso-caja">
+    <h3 id="aviso-titulo">Quiero que me avisen</h3>
+    <form id="aviso-form">
+      <label>Nombre
+        <input id="aviso-nombre" maxlength="40" required>
+      </label>
+      <label>WhatsApp
+        <input id="aviso-wsp" maxlength="30" inputmode="tel" required>
+      </label>
+      <label class="aviso-consent">
+        <input type="checkbox" id="aviso-consent">
+        <span>Acepto que SARA use mis datos para avisarme cuando esté lista y para contactarme sobre el proyecto. Puedo pedir que los borren cuando quiera.</span>
+      </label>
+      <button type="submit" class="aviso-btn" id="aviso-enviar">Enviar</button>
+      <p class="aviso-msg" id="aviso-msg" role="status"></p>
+    </form>
+    <button type="button" class="aviso-cerrar" id="aviso-cerrar">Cerrar</button>
+  </div>
+</div>
+
 <!-- ── NAV ──────────────────────────────────────────── -->
 <nav class="nav" id="navbar">
   <div class="nav-inner">
@@ -737,6 +763,22 @@
     #sara-duo .vs-mascota { width: 60px; height: 60px; }
     #sara-duo .vs-app { height: 88vh; }
   }
+  .aviso-banner { margin-top: 60px; background: var(--navy-2); color: #f0f4ff; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; }
+  .aviso-banner p { font-family: 'Rajdhani', sans-serif; font-size: 1.25rem; font-weight: 700; }
+  .aviso-btn { padding: 11px 18px; border-radius: 999px; border: none; background: var(--blue); color: #fff; font-weight: 600; font-size: .9rem; cursor: pointer; }
+  .aviso-btn:hover { background: #3a80ff; }
+  .aviso-modal { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .aviso-modal[hidden] { display: none; }
+  .aviso-caja { width: 100%; max-width: 420px; background: var(--navy); color: #f0f4ff; border: 1px solid rgba(255,255,255,.12); border-radius: 14px; padding: 20px; }
+  .aviso-caja h3 { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; margin-bottom: 12px; }
+  .aviso-caja label { display: flex; flex-direction: column; gap: 6px; font-size: .85rem; margin-bottom: 12px; color: rgba(240,244,255,.7); }
+  .aviso-caja input:not([type="checkbox"]) { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 10px 12px; color: #f0f4ff; }
+  .aviso-caja .aviso-consent { flex-direction: row; gap: 10px; line-height: 1.45; }
+  .aviso-caja #aviso-enviar { margin-top: 4px; }
+  .aviso-msg { margin: 10px 0 0; font-size: .9rem; min-height: 1.2em; }
+  .aviso-msg.error { color: #ff8a8a; }
+  .aviso-msg a { color: var(--blue-lt); }
+  .aviso-cerrar { margin-top: 12px; background: none; border: none; color: rgba(240,244,255,.6); cursor: pointer; font-size: .85rem; }
 </style>
 
 <section id="sara-duo" aria-labelledby="vs-titulo">
@@ -1495,6 +1537,54 @@
   });
 
   burbuja('bot', 'Hola, soy SARA. Te cuento sólo lo que está probado.');
+  // Banner "Quiero que me avisen": formulario rápido en ventana modal.
+  const avisoModal = $('aviso-modal'), avisoForm = $('aviso-form'), avisoMsg = $('aviso-msg');
+  $('aviso-abrir').addEventListener('click', () => { avisoModal.hidden = false; $('aviso-nombre').focus(); });
+  $('aviso-cerrar').addEventListener('click', () => { avisoModal.hidden = true; });
+  avisoForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const nombreAviso = $('aviso-nombre').value.trim();
+    const wspAviso = $('aviso-wsp').value.trim();
+    avisoMsg.className = 'aviso-msg';
+    avisoMsg.textContent = '';
+    if (!nombreAviso || !wspAviso) {
+      avisoMsg.className = 'aviso-msg error';
+      avisoMsg.textContent = 'Completá tu nombre y tu WhatsApp.';
+      return;
+    }
+    if (!$('aviso-consent').checked) {
+      avisoMsg.className = 'aviso-msg error';
+      avisoMsg.textContent = 'Necesitamos tu consentimiento para guardar tus datos.';
+      return;
+    }
+    const body = { nombre: nombreAviso, whatsapp: wspAviso, ubicacion: '', respuestas: {}, consentimiento: true, origen: 'web-banner' };
+    const btnAviso = $('aviso-enviar');
+    btnAviso.disabled = true;
+    btnAviso.textContent = 'Enviando...';
+    avisoMsg.textContent = 'Enviando...';
+    try {
+      const r = await fetch(API_LEAD, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (!r.ok) throw new Error('status ' + r.status);
+      avisoMsg.textContent = 'Listo, te avisamos.';
+      avisoForm.reset();
+      setTimeout(() => { avisoModal.hidden = true; avisoMsg.textContent = ''; }, 1500);
+    } catch (_) {
+      avisoMsg.className = 'aviso-msg error';
+      avisoMsg.textContent = 'No pudimos guardar tus datos por ahora.';
+      if (WHATSAPP_NUMERO) {
+        const a = document.createElement('a');
+        a.href = 'https://wa.me/' + WHATSAPP_NUMERO + '?text=' + encodeURIComponent('Hola, vengo de la web de AgroVision. Soy ' + nombreAviso + '.');
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.textContent = ' Escribinos por WhatsApp';
+        avisoMsg.appendChild(a);
+      }
+    } finally {
+      btnAviso.disabled = false;
+      btnAviso.textContent = 'Enviar';
+    }
+  });
+
   burbuja('bot', 'Escribí tu pregunta. Cuando quieras una propuesta para tu campo, tocá "Pedir cotización".');
 })();
 </script>
